@@ -229,10 +229,36 @@ main {
 .founder-copy > :last-child {
   margin-bottom: 0;
 }
-.founder-role {
-  margin-top: -0.2rem;
-  margin-bottom: 1rem;
-  font-size: 1.05rem;
+.founder-heading {
+  font-weight: 700;
+}
+.founder-role-inline {
+  font-weight: inherit;
+}
+.founder-links {
+  margin: 0.25rem 0 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.social-link-icon-only {
+  gap: 0;
+}
+.social-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border-radius: 3px;
+}
+.founder-links a {
   font-weight: 600;
 }
 .founder-figure {
@@ -380,8 +406,16 @@ textarea:focus {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.7rem 1rem;
+  margin-top: 0.8rem;
   color: var(--muted);
+}
+.footer-links a {
+  color: var(--muted);
+  font-weight: 600;
+}
+.footer-links a:hover {
+  color: var(--accent);
 }
 .footer-brand {
   width: min(100%, 320px);
@@ -485,5 +519,9 @@ textarea:focus {
   }
   .footer-brand {
     width: min(100%, 280px);
+  }
+  .founder-role-inline {
+    display: block;
+    margin-top: 0.15rem;
   }
 }

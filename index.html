@@ -20,10 +20,35 @@
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Bathymetrix",
-      "url": "https://bathymetrix.com",
-      "logo": "https://bathymetrix.com/assets/logo.png"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://bathymetrix.com/#organization",
+          "name": "Bathymetrix",
+          "url": "https://bathymetrix.com",
+          "logo": "https://bathymetrix.com/assets/logo.png",
+          "sameAs": [
+            "https://www.linkedin.com/company/bathymetrix/",
+            "https://github.com/bathymetrix/",
+            "https://www.youtube.com/@bathymetrix"
+          ],
+          "founder": {
+            "@id": "https://bathymetrix.com/#person"
+          }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://bathymetrix.com/#person",
+          "name": "Joel D. Simon",
+          "alternateName": "Joel Simon",
+          "sameAs": [
+            "https://www.linkedin.com/in/joeldsimon/",
+            "https://github.com/joelsimon/",
+            "https://scholar.google.com/citations?user=o9UAOvgAAAAJ&hl=en&oi=ao",
+            "https://orcid.org/0000-0003-2444-0564"
+          ]
+        }
+      ]
     }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,6 +110,11 @@
       <strong>Bathymetrix, LLC</strong>
       <div>Portland, OR, USA</div>
       <div><a href="mailto:info@bathymetrix.com">info@bathymetrix.com</a></div>
+      <div class="footer-links" aria-label="Bathymetrix profiles">
+        <a class="social-link social-link-icon-only" href="https://www.linkedin.com/company/bathymetrix/" target="_blank" rel="noopener noreferrer" aria-label="Bathymetrix on LinkedIn"><img class="social-icon" src="https://www.linkedin.com/favicon.ico" alt=""></a>
+        <a class="social-link social-link-icon-only" href="https://github.com/bathymetrix/" target="_blank" rel="noopener noreferrer" aria-label="Bathymetrix on GitHub"><img class="social-icon" src="https://github.com/favicon.ico" alt=""></a>
+        <a class="social-link social-link-icon-only" href="https://www.youtube.com/@bathymetrix" target="_blank" rel="noopener noreferrer" aria-label="Bathymetrix on YouTube"><img class="social-icon" src="https://www.youtube.com/favicon.ico" alt=""></a>
+      </div>
     </div>
   </div>
 </footer>
