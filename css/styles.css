@@ -299,6 +299,30 @@ main {
   text-transform: uppercase;
   margin-bottom: 0.8rem;
 }
+.section-kicker-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-bottom: 1.35rem;
+}
+.section-kicker-row .kicker {
+  margin-bottom: 0;
+}
+.section-kicker-sep {
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+.partner-mark {
+  display: inline-flex;
+  align-items: center;
+}
+.partner-mark img {
+  display: block;
+  height: 44px;
+  width: auto;
+  border-radius: 6px;
+}
 .metric {
   display: flex;
   align-items: baseline;
@@ -525,6 +549,9 @@ textarea:focus {
   }
   .footer-brand {
     width: min(100%, 280px);
+  }
+  .section-kicker-sep {
+    display: none;
   }
   .founder-role-inline {
     display: block;
