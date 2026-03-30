@@ -175,6 +175,9 @@ main {
   max-width: 44ch;
   margin-bottom: 0.75rem;
 }
+.hero-subhead-line {
+  white-space: nowrap;
+}
 .lead-single-line {
   max-width: none;
   white-space: nowrap;
@@ -484,6 +487,9 @@ textarea:focus {
     width: 100%;
   }
   .hero-line {
+    white-space: normal;
+  }
+  .hero-subhead-line {
     white-space: normal;
   }
   .lead-single-line {
