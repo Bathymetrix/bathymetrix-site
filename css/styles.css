@@ -309,6 +309,88 @@ main {
 .section-kicker-row .kicker {
   margin-bottom: 0;
 }
+.publication-section-heading {
+  margin-top: 3rem;
+}
+.publication-list {
+  border-top: 1px solid var(--line);
+}
+.publication-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 2rem;
+  align-items: start;
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.publication-copy h2 {
+  margin: 0 0 0.55rem;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+.publication-label {
+  margin-bottom: 0.55rem;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.publication-meta,
+.publication-authors,
+.publication-doi,
+.publication-note {
+  margin-bottom: 0.45rem;
+}
+.publication-doi {
+  overflow-wrap: anywhere;
+}
+.publication-meta,
+.publication-authors,
+.publication-note {
+  color: var(--muted);
+}
+.publication-note {
+  font-size: 0.92rem;
+}
+.publication-preview {
+  display: grid;
+  gap: 0.45rem;
+  width: 180px;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 10px;
+}
+.publication-preview:focus-visible {
+  outline: 2px solid rgba(15, 76, 129, 0.35);
+  outline-offset: 6px;
+}
+.publication-preview img {
+  width: 100%;
+  aspect-ratio: 0.76;
+  height: auto;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  transform-origin: center;
+}
+.publication-preview:hover img,
+.publication-preview:focus-visible img {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.2);
+  filter: brightness(1.03);
+}
+.publication-preview-caption {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  opacity: 0.72;
+  text-align: center;
+  text-transform: uppercase;
+}
 .section-kicker-sep {
   color: var(--muted);
   font-size: 1.15rem;
@@ -556,5 +638,12 @@ textarea:focus {
   .founder-role-inline {
     display: block;
     margin-top: 0.15rem;
+  }
+  .publication-item {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  .publication-preview {
+    width: min(180px, 100%);
   }
 }
