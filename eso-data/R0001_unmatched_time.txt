@@ -1,0 +1,2 @@
+legacy_timestamp	log_before	log_after	mer_before	mer_after
+2022-05-11T00:27:10Z	0001_6278D744.BIN	<none>	0001_6278D73A.MER	<none>

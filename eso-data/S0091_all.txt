@@ -1,0 +1,9 @@
+S0091   21-Jul-2021 09:33:27    43.682467     7.319417   0.500  0.820      NaN    NaN      NaN   NaN  NaN    11 NaN NaN
+S0091   21-Jul-2021 09:44:02    43.682467     7.319400   0.470  0.740    15211    NaN      NaN   NaN  NaN    11 NaN   2
+S0091   21-Jul-2021 09:47:30    43.682467     7.319417   0.470  0.780    14852    NaN    80400   NaN  NaN   NaN NaN NaN
+S0091   21-Jul-2021 09:50:12    43.682467     7.319417   0.460  0.730    15312  14848    80463   162   20   NaN NaN NaN
+S0091   21-Jul-2021 09:51:13    43.682467     7.319417     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+S0091   21-Jul-2021 09:51:25    43.682467     7.319417     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+S0091   21-Jul-2021 10:01:32    43.682467     7.319417     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+S0091   21-Jul-2021 10:04:54    43.682450     7.319417     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+S0091   21-Jul-2021 10:07:36    43.682450     7.319417     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN

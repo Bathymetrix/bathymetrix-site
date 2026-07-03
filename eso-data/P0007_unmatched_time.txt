@@ -1,0 +1,3 @@
+legacy_timestamp	log_before	log_after	mer_before	mer_after
+2018-09-11T13:59:08Z	07_5B9428CA.LOG	<none>	07_5B97C886.MER	<none>
+2018-09-11T14:17:17Z	07_5B9428CA.LOG	<none>	07_5B97C886.MER	<none>

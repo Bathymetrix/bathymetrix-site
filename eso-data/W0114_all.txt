@@ -1,0 +1,8 @@
+W0114   26-Jun-2024 10:15:43    43.682483     7.319500     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+W0114   26-Jun-2024 10:26:30    43.682483     7.319517     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+W0114   26-Jun-2024 10:30:03    43.682517     7.319517     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+W0114   26-Jun-2024 10:32:34    43.682567     7.319467     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+W0114   12-Feb-2025 15:55:11    43.612633     7.054533     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+W0114   12-Feb-2025 15:56:12    43.612717     7.054583     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+W0114   06-Mar-2025 09:15:31    36.397483    25.439017     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN
+W0114   06-Mar-2025 09:16:43    36.397500    25.439033     NaN    NaN      NaN    NaN      NaN   NaN  NaN   NaN NaN NaN

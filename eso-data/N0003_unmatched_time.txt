@@ -1,0 +1,2 @@
+legacy_timestamp	log_before	log_after	mer_before	mer_after
+2019-01-01T22:39:13Z	03_5BDEC2AE.LOG	03_5C2C01EF.LOG	03_5C2BEB70.MER	03_5C2C01E3.MER
