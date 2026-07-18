@@ -227,7 +227,7 @@ main {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
   gap: 1.8rem;
-  align-items: start;
+  align-items: stretch;
 }
 .founder-copy > :last-child {
   margin-bottom: 0;
@@ -266,9 +266,13 @@ main {
 }
 .founder-figure {
   margin: 0;
+  min-height: 0;
 }
 .founder-photo {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   border-radius: 14px;
 }
 .founder-figure figcaption {
@@ -560,6 +564,9 @@ textarea:focus {
   .founder-layout {
     grid-template-columns: 1fr;
   }
+  .founder-figure {
+    aspect-ratio: 3 / 2;
+  }
 }
 
 @media (max-width: 760px) {
@@ -638,6 +645,9 @@ textarea:focus {
   .founder-role-inline {
     display: block;
     margin-top: 0.15rem;
+  }
+  .founder-figure {
+    order: -1;
   }
   .publication-item {
     grid-template-columns: 1fr;
