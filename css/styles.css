@@ -316,6 +316,47 @@ main {
 .publication-section-heading {
   margin-top: 3rem;
 }
+.visualizations {
+  margin-top: 3rem;
+}
+.visualizations-intro {
+  max-width: 62ch;
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+}
+.visualization-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  max-width: 860px;
+}
+.visualization-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.visualization-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0f172a;
+}
+.visualization-card:first-child .visualization-video {
+  aspect-ratio: 3 / 2;
+}
+.visualization-copy {
+  padding: 1.25rem 1.4rem 0.5rem;
+}
+.visualization-copy h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+.visualization-copy p {
+  color: var(--muted);
+}
 .publication-list {
   border-top: 1px solid var(--line);
 }
