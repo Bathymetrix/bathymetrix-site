@@ -345,7 +345,7 @@ main {
   background: #0f172a;
 }
 .visualization-card:first-child .visualization-video {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 28 / 17;
 }
 .visualization-copy {
   padding: 1.25rem 1.4rem 0.5rem;
