@@ -329,6 +329,7 @@ main {
   grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   max-width: 860px;
+  margin: 0 auto;
 }
 .visualization-card {
   overflow: hidden;
@@ -449,6 +450,18 @@ main {
   height: 44px;
   width: auto;
   border-radius: 6px;
+}
+.current-engagement-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2rem;
+}
+.partner-mark-hero {
+  justify-self: center;
+}
+.partner-mark-hero img {
+  height: clamp(106px, 11vw, 124px);
 }
 .metric {
   display: flex;
@@ -602,8 +615,12 @@ textarea:focus {
   .content-grid,
   .contact-grid,
   .split-list,
-  .founder-layout {
+  .founder-layout,
+  .current-engagement-layout {
     grid-template-columns: 1fr;
+  }
+  .partner-mark-hero {
+    justify-self: start;
   }
   .founder-figure {
     aspect-ratio: 3 / 2;
