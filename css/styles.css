@@ -57,8 +57,8 @@ ul { margin: 0; padding-left: 1.2rem; }
   min-width: 0;
 }
 .brand-mark {
-  height: 36px;
-  width: auto;
+  height: auto;
+  width: 170px;
   max-width: min(300px, 62vw);
 }
 .brand-fallback {
@@ -259,6 +259,7 @@ main {
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
+  object-fit: contain;
   border-radius: 3px;
 }
 .founder-links a {
@@ -632,7 +633,7 @@ textarea:focus {
     min-height: 72px;
   }
   .brand-mark {
-    height: 36px;
+    height: auto;
     max-width: min(240px, 68vw);
   }
   .hero {
