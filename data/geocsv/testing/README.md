@@ -14,17 +14,12 @@ Source provenance: `$MERMAID/processed/452.020-P-06/geo_DET_REQ.csv`, renamed to
 this edit; data records are retained. The manifest records provenance, size,
 and SHA-256 for the test fixture.
 
-## Provisional test layout
+## Shared download agreement
 
-- Fetch `latest.json` once per operation and retain its `release_id`.
-- Resolve its `manifest` relative to the collection base URL.
-- Resolve each manifest file's `filename` relative to the manifest URL.
-- Verify each downloaded file's `size_bytes` and SHA-256 checksum.
-- Keep the release ID and manifest with downloaded files.
-
-These JSON structures are provisional for fetcher development. They are not yet
-a production API. Treat a published test release as immutable; use `test-002`
-for subsequent changes and update `latest.json` only after uploads are verified.
+See [the download agreement](CONTRACT.md) for the shared URL layout, manifest
+fields, checksum definitions, release selection, and repository ownership.
+The website chat maintains this agreement; the `mermaid-geocsv` chat implements
+and tests the Python client against it.
 
 ## Local preview
 
