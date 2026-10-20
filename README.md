@@ -26,3 +26,8 @@ Then visit `http://localhost:8000`.
 ## Deployment
 
 The site is intended for simple static hosting, including GitHub Pages.
+
+## GeoCSV download testing
+
+A test-only file collection is prepared under [`data/geocsv/testing/`](data/geocsv/testing/README.md).
+It is separate from future scientific data releases.

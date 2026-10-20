@@ -1,0 +1,5 @@
+{
+  "release_id": "test-001",
+  "testing_only": true,
+  "manifest": "releases/test-001/manifest.json"
+}

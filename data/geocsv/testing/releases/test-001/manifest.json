@@ -1,0 +1,19 @@
+{
+  "release_id": "test-001",
+  "testing_only": true,
+  "created_utc": "2026-10-20T14:32:27.705064Z",
+  "description": "Download testing only; example collection, not a published scientific data release.",
+  "files": [
+    {
+      "instrument_id": "P0006",
+      "filename": "P0006.geocsv",
+      "size_bytes": 3001102,
+      "sha256": "07dfbbe639bacde403bb2b9d15eaf5d3ea8840ad17f11e3dde36d52ccbd17fa3",
+      "provenance": {
+        "source_path": "$MERMAID/processed/452.020-P-06/geo_DET_REQ.csv",
+        "manual_edits": true,
+        "notes": "Renamed P0006.geocsv. Three comment lines removed; the attribution comment records this edit. Data records retained."
+      }
+    }
+  ]
+}
