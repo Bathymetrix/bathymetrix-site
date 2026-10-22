@@ -19,9 +19,12 @@ checklists synchronized.
 ## Production collection and legacy test collection
 
 Planned production base: **`https://bathymetrix.com/geocsv/`**. GitHub Pages remains the
-website origin, Squarespace remains registrar, and a Cloudflare Worker route
-serves `/geocsv/*` from R2 after approved DNS/proxy onboarding. This architecture
-is prepared locally, not operational. The landing page remains on GitHub Pages.
+website origin and Squarespace remains registrar. Cloudflare authoritative DNS
+onboarding and website proxy activation are complete. Full (strict) is configured
+and public website HTTPS and post-proxy email checks pass. Automated-client
+access and DNSSEC restoration remain pending; DNSSEC is disabled. The planned Worker
+route serves `/geocsv/*` from private R2 storage. The GeoCSV download service is
+prepared locally, not operational. The landing page remains on GitHub Pages.
 
 Relative public paths:
 
@@ -37,10 +40,11 @@ releases/<encoded-release-component>/validation.json
 use latest.json once and pin an immutable release, not convenience redirects.
 The publisher stores keys under `geocsv/` inside the private R2 bucket.
 
-The existing illustrative test collection remains at
-`/data/geocsv/testing/`, with `testing_only: true` and token `test-001`. Its fixture,
-manifest, and checksum are unchanged. Serve the website locally at
-`http://localhost:8000/data/geocsv/testing/` for integration development. Production
+The legacy illustrative test collection is retained at `/data/geocsv/testing/`,
+with `testing_only: true` and token `test-001`. Its fixture, manifest and checksum
+are unchanged. It remains available for historical/local testing, outside the
+production BIC exception and hosting verification. New hosted-client checks use
+an illustrative release under `/geocsv/` after test hosting is prepared. Production
 snapshots are not based on the manually edited test example and stay outside Git.
 
 ## Literal release identity and encoded paths

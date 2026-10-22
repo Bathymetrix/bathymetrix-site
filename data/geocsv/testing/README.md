@@ -1,6 +1,8 @@
-# GeoCSV download test collection
+# Legacy GeoCSV download test collection
 
-Download testing only—example collection, not a published scientific data release.
+This illustrative collection is retained for historical/local testing. Planned
+hosting and new public-client checks use `/geocsv/`; this legacy path is outside
+the production BIC exception. It is not a published scientific data release.
 This directory prepares a static HTTPS endpoint; adding files locally does not
 publish them or configure R2, DNS, or a data subdomain.
 
@@ -25,8 +27,8 @@ fields, checksum definitions, release selection, and repository ownership.
 
 From the website repository, run `python3 -m http.server 8000` and visit
 `http://localhost:8000/data/geocsv/testing/`. Use that directory URL as the
-fetcher's collection base URL. A future deployed test uses the same relative
-layout, with a configurable base URL.
+fetcher's collection base URL for legacy testing. New hosted-client verification
+uses an illustrative release under `/geocsv/` after test hosting is prepared.
 
 Routine package fetch tests serve package-local fixtures through a local HTTP
 server and do not require this website checkout or an internet connection. The

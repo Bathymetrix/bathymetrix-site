@@ -22,7 +22,11 @@ fixed in the package; the website does not duplicate matching or projection.
 | `scripts/geocsv/publish_snapshot.py` | Report acceptance → recheck → conditional upload → HTTPS/client verification → latest last |
 | `workers/geocsv/src/index.js` | Streaming, one URL decoding step, no-cache latest, immutable release caching; not deployed |
 | `geocsv/index.html` | Prepared landing page; production downloads are not advertised as available |
-| DNS, licensing/citation, deployment and live HTTPS | Pending |
+| Cloudflare authoritative DNS | Onboarded; imported records compared with Squarespace |
+| Website proxy/TLS | Universal edge certificate Active; Full (strict) configured; apex/www proxied and public HTTPS checks passed |
+| Email and DNSSEC | Post-proxy send/receive checks passed; DNSSEC disabled |
+| Automated-client access | Browser Integrity Check blocks default Python requests; download-path exception and retesting pending |
+| Licensing/citation, R2/Worker deployment and live downloads | Pending |
 
 The 2026-10-22 complete local archive run passed all 43,365 original waveform
 pairs under report version 2, and the publisher's acceptance gate accepted the
@@ -187,13 +191,51 @@ cache errors or misses. Deployment must preserve those controls. Publication
 verification requests force R2 reads with `Cache-Control: no-cache` and request
 `Accept-Encoding: identity`. Do not override this with a broad zone cache rule.
 
-## DNS migration runbook — prepare before activation
+## DNS onboarding and remaining activation steps
 
-Domain registration remains at Squarespace and the website origin is GitHub
-Pages. Confirm current authoritative nameservers, website/email records and
-DNSSEC privately before changes. Keep actual zone exports, inventories,
-account context and deployment configuration outside this repository in an
-approved private location; use placeholders in repository procedures.
+Cloudflare authoritative DNS onboarding and website proxy activation are
+complete as of 2026-10-22. All imported records were compared with Squarespace
+and confirmed to match. Full (strict) is configured and only apex/www website
+records are proxied; email and other service records remain unchanged. DNSSEC is
+disabled. Squarespace remains registrar and GitHub Pages remains the website origin.
+
+Public checks confirmed Cloudflare authority through two independent recursive
+resolvers. Before proxy activation, origin-path HTTPS checks passed. After
+activation, apex/www HTTPS validated successfully through Cloudflare, HTTP and
+`www` redirected to apex HTTPS without loops, and Home, About, Work and Contact
+returned 200 with Cloudflare edge responses. The Active Universal certificate
+covers apex/www. Fresh post-proxy email sending and receiving both passed.
+
+Follow-up GET and HEAD probes with `Python-urllib/3.12` received 403. Changing
+only the user agent to an explicit verification-tool name returned the expected
+200 or 301. The same user-agent distinction affected `/geocsv/` and
+`/data/geocsv/testing/latest.json` with GET and identity encoding. The fetch
+client and publisher use Python urllib without an explicit user agent.
+Cloudflare Security Events identified Browser Integrity Check as the blocking
+feature. Successful website probes do not establish automated-download readiness.
+
+The proposed adjustment is a configuration rule that disables only
+[Browser Integrity Check](https://developers.cloudflare.com/waf/tools/browser-integrity-check/)
+for GET/HEAD requests on the collection's apex/www hostnames under `/geocsv/`
+only. The legacy `/data/geocsv/testing/` collection is outside this exception
+and is not part of production hosting verification. Other paths and security
+settings retain their existing policy. This exception is not yet deployed or verified. Keep the actual
+rule configuration and account-specific records outside the repository. After
+coordinated deployment, retest ordinary urllib requests under `/geocsv/`.
+Complete unmodified fetch-client verification against a separate illustrative
+release under that same base once R2/Worker test hosting is prepared. This does
+not authorize production data publication.
+
+The remaining sequence is: resolve automated-client access, prepare private
+R2/Worker hosting, verify downloads, and restore DNSSEC. Production data activation
+separately requires current scientific acceptance and explicit authorization.
+Each infrastructure change requires explicit coordination.
+
+Keep actual zone exports, inventories, account context and deployment
+configuration outside this repository in an approved private location; use
+placeholders in repository procedures. The procedure below retains the completed
+onboarding and website proxy steps for reference. Resolve automated-client
+access before accepting deployed downloads; R2/Worker preparation is step 7.
 
 1. **Inventory and baseline.** Export the complete existing zone from Squarespace.
    Save apex/www website records, MX priorities, SPF, DKIM selectors, DMARC,
@@ -220,10 +262,13 @@ approved private location; use placeholders in repository procedures.
    to the assigned Cloudflare pair. Keep GitHub Pages as origin and start DNS-only.
    Confirm authority and answers from multiple resolvers, website TLS/redirects,
    and email. Preserve the prior zone during propagation; allow for cached TTLs.
-6. **Enable only the website proxy.** Once the zone and certificates are ready,
-   proxy the actual website hostname records needed for the Worker. Use Full
-   (strict) TLS with the existing valid GitHub Pages origin certificate, not
-   Flexible. Recheck apex/www redirects and the main pages through the proxy.
+6. **Verify TLS and enable only the website proxy.** Confirm an Active
+   [edge certificate](https://developers.cloudflare.com/ssl/edge-certificates/universal-ssl/enable-universal-ssl/)
+   covering apex/www in Cloudflare. DNS-only HTTPS does not test that certificate.
+   Configure [Full (strict)](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/)
+   after confirming the GitHub Pages origin has a valid matching certificate.
+   Then enable proxying only for the website hostname records needed for the
+   Worker. Recheck apex/www TLS, redirects, main pages and email send/receive.
    Email/service records remain DNS-only. If origin TLS or loops fail, revert
    the website records to DNS-only while diagnosing.
 7. **Approved hosting deployment.** Create the private bucket and least-privilege
@@ -271,7 +316,18 @@ These tests do not establish live infrastructure behavior or archive acceptance.
 - [x] Account for 112 source GeoCSV files: stage 103 nonempty files; record nine
   recordless exclusions in the local-only sidecar. Spectra are not counted.
 - [ ] Set data redistribution license, attribution, citation/DOI and retention policy.
-- [ ] Confirm actual DNS/email records and DNSSEC; execute only approved migration.
+- [x] Complete Cloudflare DNS onboarding and compare every imported record
+  with Squarespace; retain registrar and website origin.
+- [x] Verify public Cloudflare authority and apex/www HTTPS and redirects.
+- [x] Confirm an Active Universal edge certificate covering apex/www.
+- [x] Configure Full (strict), proxy only website records, and verify public
+  edge HTTPS, redirects and main-page responses.
+- [x] Verify fresh email sending and receiving after proxy activation.
+- [x] Identify Browser Integrity Check as the feature blocking default Python
+  requests through Cloudflare Security Events.
+- [ ] Coordinate a download-path BIC exception and verify normal urllib and
+  unmodified fetch/publisher HTTP clients.
+- [ ] Restore and verify DNSSEC after hosting verification; it is currently disabled.
 - [ ] Deploy and verify R2/Worker, cache controls, origin TLS and public exact bytes.
 - [ ] Test live pinned/latest, one/all instruments, memory/disk and scientific use.
 
