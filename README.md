@@ -1,47 +1,41 @@
 # Bathymetrix
 
-Public website for Bathymetrix, a research consultancy specializing in ocean acoustics and global seismology.
+Public website and GeoCSV data publication tooling for Bathymetrix.
 
-## Site
+## Repository
 
-This repository contains a lightweight static website built with plain HTML, CSS, and JavaScript.
+- **Website:** HTML, CSS and JavaScript served by GitHub Pages.
+- **Snapshot workflow:** Python tools in `scripts/geocsv/` create immutable
+  snapshots, validate the full waveform archive and require scientific
+  acceptance before publication.
+- **Download service:** Cloudflare Worker code in `workers/geocsv/` streams
+  releases from R2 and serves the latest-release pointer.
+- **Test collection:** small illustrative fixtures in
+  [`data/geocsv/testing/`](data/geocsv/testing/README.md).
 
-Current public pages:
+Production payloads, validation reports and operational configuration remain
+outside Git. Scientific parsing, association and SAC export use `mermaid-geocsv`.
 
-- `index.html`
-- `about.html`
-- `work.html`
-- `contact.html`
+## GeoCSV status
 
-## Development
+- Planned collection: `https://bathymetrix.com/geocsv/`.
+- Creation, validation, acceptance and publication tools are implemented locally.
+- The initial full-archive run passed all 43,365 waveform pairs and the acceptance
+  gate; see [archive findings](docs/GEOCSV_ARCHIVE_FINDINGS.md).
+- Data licensing/citation, DNS preparation, deployment and live HTTPS verification
+  remain pending. The production download service is not deployed.
 
-To preview locally, open `index.html` in a browser or run a simple local server:
+## Local website preview
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then visit `http://localhost:8000`.
+Open `http://localhost:8000`. This previews the static pages and test collection;
+it does not run the Worker or publish data.
 
-## Deployment
+## Technical documentation
 
-The site is intended for simple static hosting, including GitHub Pages.
-
-## GeoCSV download testing
-
-A test-only file collection is prepared under [`data/geocsv/testing/`](data/geocsv/testing/README.md).
-It is separate from future scientific data releases.
-
-## GeoCSV production hosting preparation
-
-The planned public collection is `https://bathymetrix.com/geocsv/`. GitHub Pages
-serves the website. The planned data service uses R2 for payload storage and a
-Worker route for `/geocsv/*`; that infrastructure is not deployed.
-See [the implementation and DNS migration runbook](docs/GEOCSV_HOSTING.md) and
-[the shared production contract](data/geocsv/testing/CONTRACT.md).
-
-The website owns snapshot creation, full-archive validation, the versioned
-acceptance report and publication gate. These tools and Worker routing are
-implemented locally. Scientific acceptance requires a successful full archive
-run. See [validation and report requirements](docs/GEOCSV_VALIDATION.md).
-No production service is activated by these files.
+- [Hosting architecture, workflow, tests and deployment](docs/GEOCSV_HOSTING.md)
+- [Scientific validation and acceptance report](docs/GEOCSV_VALIDATION.md)
+- [Publication and download contract](data/geocsv/testing/CONTRACT.md)
