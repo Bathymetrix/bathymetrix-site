@@ -1,9 +1,9 @@
 esoloc comparison with legacy vit2tbl output
 
-Tables: /Users/jdsimon/mermaid/eso-data
-Untrusted derived comparison set: /Users/jdsimon/mermaid/esoloc
-Normalized records: /Users/jdsimon/mermaid/records
-Time-unmatched files: /Users/jdsimon/mermaid/eso-data
+Tables: $MERMAID/eso-data
+Untrusted derived comparison set: $MERMAID/esoloc
+Normalized records: $MERMAID/records
+Time-unmatched files: $MERMAID/eso-data
 
 Modern esoloc is authoritative; this temporal-only, many-to-one comparison is diagnostic, not a pass/fail test.
 It does not prove one-to-one row identity or that a time-unmatched row lacks source data.

@@ -635,10 +635,10 @@
   "eso_data_git_commit": "2387fb50ca8aec05fdc4673c75fa48d93520f727",
   "eso_data_git_dirty": true,
   "eso_data_version": "1.0.0",
-  "generation_command": "/Users/jdsimon/programs/eso-data/.venv/bin/python3 ./build_esoloc.py -i /Users/jdsimon/mermaid/records -o ../tables",
+  "generation_command": ".venv/bin/python3 ./build_esoloc.py -i $MERMAID/records -o ../tables",
   "generation_timestamp_utc": "2026-07-03T21:09:36.523105Z",
   "input_roots": {
-    "normalized_records": "/Users/jdsimon/mermaid/records"
+    "normalized_records": "$MERMAID/records"
   },
   "mermaid_records_version": "2.1.0-rc2",
   "mermaid_records_versions": [

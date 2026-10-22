@@ -1,5 +1,5 @@
 {
-  // Copy to wrangler.jsonc only when preparing an approved deployment.
+  // Use as a template for approved deployment configuration outside this checkout.
   "name": "bathymetrix-geocsv",
   "main": "src/index.js",
   "compatibility_date": "2026-10-22",
