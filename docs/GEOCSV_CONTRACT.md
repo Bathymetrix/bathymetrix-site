@@ -2,8 +2,8 @@
 
 The cross-repository design is documented in `mermaid-geocsv/docs/HOSTING.md`.
 The fetch client implements the timestamp protocol in 0.24.0. This document adopts
-that production protocol for the website. It supersedes the earlier test-only
-plan. [Website implementation and deployment status](GEOCSV_HOSTING.md)
+the snapshot protocol for the website. The current publication phase remains
+testing only. [Website implementation and deployment status](GEOCSV_HOSTING.md)
 records the current scripts, diagram, and remaining launch gates.
 
 ## Ownership
@@ -16,7 +16,26 @@ the public APIs and performs independent reference comparisons; it does not
 duplicate parsing, matching or SAC projection. Keep both hosting diagrams and
 checklists synchronized.
 
-## Production collection
+## Current publication phase: testing only
+
+All hosted data are explicitly testing only, including complete-corpus upload and
+download tests. Manifests and latest pointers must use matching
+`testing_only: true`, and public descriptions must identify the data as testing.
+Immutable timestamped snapshots and pinned retrievals support reproducibility;
+the `release_id` field does not designate an authorized first scientific release.
+Production promotion, a first data/software release tag and claims of production
+availability require separate explicit authorization. Scientific acceptance,
+licensing/citation and upload authorization requirements remain in force.
+
+Testing objects and activation pointers must be isolated from future production.
+The exact testing URL/object-key layout requires implementation and verification
+before uploads. Existing creator/verifier/publisher code is production-oriented:
+it writes or requires `testing_only: false`. It must not be used unchanged for
+hosted testing. Do not relabel a frozen candidate or reuse a report bound to its
+old manifest bytes. Testing-mode support is pending; this policy does not claim
+that it is implemented.
+
+## Future production collection
 
 Planned production base: **`https://bathymetrix.com/geocsv/`**. GitHub Pages remains the
 website origin and Squarespace remains registrar. Cloudflare authoritative DNS
@@ -26,6 +45,10 @@ exception permits normal Python HTTP requests under `/geocsv/`. Full download
 verification and DNSSEC restoration remain pending; DNSSEC is disabled. The planned Worker
 route serves `/geocsv/*` from private R2 storage. The GeoCSV download service is
 prepared locally, not operational. The landing page remains on GitHub Pages.
+
+The relative manifest/download format applies within the selected collection.
+The production paths below remain a future reference; test isolation must be
+implemented before hosted uploads.
 
 Relative public paths:
 
@@ -68,18 +91,19 @@ remain supported by the client/Worker for illustrative test releases only.
 
 ## Exact manifest protocol
 
-Latest pointer:
+Testing-only latest-pointer format (relative to its isolated collection):
 
 ```json
 {
   "release_id": "2026-10-21T22:48:33.277Z",
-  "testing_only": false,
+  "testing_only": true,
   "manifest": "releases/2026-10-21T22%3A48%3A33.277Z/manifest.json"
 }
 ```
 
-The relative manifest path must exactly match its encoded release. No
-`release_component` JSON field is needed.
+The relative manifest path must exactly match its encoded release. Its
+`testing_only` flag must match the manifest and remain true throughout the current
+testing phase. No `release_component` JSON field is needed.
 
 The immutable manifest requires `release_id`, boolean `testing_only`, and a
 `files` array. Each entry requires:

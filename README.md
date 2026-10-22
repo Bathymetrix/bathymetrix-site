@@ -16,8 +16,11 @@ outside Git. Scientific parsing, association and SAC export use `mermaid-geocsv`
 
 ## GeoCSV status
 
+- All hosted data remain **testing only**, including full-corpus transfer tests.
+  Production promotion and a first release require explicit authorization.
 - Planned collection: `https://bathymetrix.com/geocsv/`.
 - Creation, validation, acceptance and publication tools are implemented locally.
+  Testing-only upload support must be implemented and verified before use.
 - The initial full-archive run passed all 43,365 waveform pairs and the acceptance
   gate; see [archive findings](docs/GEOCSV_ARCHIVE_FINDINGS.md).
 - Cloudflare DNS onboarding and website proxy/TLS setup are complete; public

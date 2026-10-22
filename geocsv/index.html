@@ -33,6 +33,9 @@
     provides Python tools for fetching and reading MERMAID metadata, associating
     it with waveforms, and exporting located SAC files.</p>
   <h2>Publication status</h2>
+  <p>All hosted GeoCSV data will be labeled <strong>testing only</strong>, including
+    full-corpus download tests. A first production scientific release has not
+    been authorized.</p>
   <p>The production collection is being prepared. Production downloads are not
     yet available. Full archive validation, data licensing, and citation details
     must be completed before the first release.</p>
@@ -41,7 +44,7 @@
     a complete manifest, and checksums for every file. A Python download will
     select one release for the whole operation. A specific release can be
     requested again without relying on whichever release is latest.</p>
-  <p>Once the service is published, Python access will use:</p>
+  <p>Once production access is authorized and published, Python access will use:</p>
   <pre style="overflow-x: auto;"><code>from mermaid import geocsv
 
 results = geocsv.fetch(

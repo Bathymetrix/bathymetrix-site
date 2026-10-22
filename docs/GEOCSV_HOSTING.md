@@ -12,6 +12,20 @@ APIs and their scientific contracts. It does not supply a publication validator
 or report protocol. Package defects are reported with reproducible evidence and
 fixed in the package; the website does not duplicate matching or projection.
 
+## Current publication phase: testing only
+
+All hosted data remain explicitly testing only, including full-corpus transfer
+and validation tests. Manifests/latest pointers must agree on `testing_only: true`;
+public descriptions must identify testing status. Timestamped snapshots support
+reproducibility without constituting a first scientific release. Production
+promotion, release tags and production-availability claims require explicit
+authorization. Scientific and licensing/citation gates remain in force.
+
+Current creator/verifier/publisher code writes or requires `testing_only: false`.
+Testing-only labeling and object/pointer isolation must be implemented and
+verified before uploads. Do not relabel frozen candidates or reuse their reports.
+See the [publication contract](GEOCSV_CONTRACT.md#current-publication-phase-testing-only).
+
 ## Implementation status
 
 | Component | State |
@@ -19,7 +33,7 @@ fixed in the package; the website does not duplicate matching or projection.
 | `scripts/geocsv/create_snapshot.py` | Verbatim staging, explicit inventory, shared timestamp, deterministic manifest |
 | `scripts/geocsv/validate_snapshot.py` | Full original MiniSEED/paired SAC inventory and public-API scientific comparisons |
 | `scripts/geocsv/acceptance.py` | Version 2 report protocol, evidence checks and source/candidate fingerprint rechecks |
-| `scripts/geocsv/publish_snapshot.py` | Report acceptance → recheck → conditional upload → HTTPS/client verification → latest last |
+| `scripts/geocsv/publish_snapshot.py` | Production-oriented acceptance/transfer implementation; testing-only upload safeguards pending |
 | `workers/geocsv/src/index.js` | Streaming, one URL decoding step, no-cache latest, immutable release caching; not deployed |
 | `geocsv/index.html` | Prepared landing page; production downloads are not advertised as available |
 | Cloudflare authoritative DNS | Onboarded; imported records compared with Squarespace |
@@ -38,7 +52,9 @@ software release is implied by a local validation pass.
 ## Workflow
 
 Paths are relative to their named repository. `{work}` is outside Git and the
-protected processed tree. Every protected input is read-only.
+protected processed tree. Every protected input is read-only. The diagram retains
+the reviewed publication sequence; its production object keys are a future
+reference. Testing-mode labeling and isolation must be implemented before uploads.
 
 ```mermaid
 flowchart TB
@@ -54,6 +70,7 @@ flowchart TB
     writer --> source
     waves --> originals
     subgraph site["bathymetrix-site — complete local workflow"]
+        phase["Current hosted-data phase: testing only<br/>No production promotion without explicit authorization"]
         inventory["Explicit reviewed serial-to-ID inventory"]
         create["scripts/geocsv/create_snapshot.py"]
         validate["scripts/geocsv/validate_snapshot.py"]
@@ -63,6 +80,7 @@ flowchart TB
         inventory --> create
         validate --> reportcheck
         reportcheck --> publish
+        phase -. constrains .-> publish
     end
     subgraph package["mermaid-geocsv — public APIs and scientific behavior"]
         api["read → associate (strict originals) → write_sac"]
@@ -305,6 +323,10 @@ missing pairs, unsupported/unexamined inputs, scientific mismatches, immutable
 retry/conflict behavior, publication ordering and streaming/cache controls.
 These tests do not establish live infrastructure behavior or archive acceptance.
 
+- [x] Record the current testing-only phase for all hosted data, including
+  complete-corpus tests; keep production promotion and first release unauthorized.
+- [ ] Implement and verify testing-only flags, object/pointer isolation and public
+  labeling before hosted uploads; preserve the scientific gate and latest-last order.
 - [x] Implement website-owned create, validate, report acceptance and publish tools.
 - [x] Preserve and test snapshot, Worker and transfer behavior.
 - [x] Define the versioned report and focused acceptance/rejection tests.

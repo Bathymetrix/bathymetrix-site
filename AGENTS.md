@@ -65,6 +65,27 @@ unverified information and uncertainty explicitly rather than presenting them
 as established facts. Omit personal account and billing details unless
 explicitly requested for the document.
 
+## GeoCSV testing-only publication phase
+
+All hosted GeoCSV data remain explicitly testing only until production publication
+is separately authorized. This includes synthetic fixtures and full-corpus upload,
+download and scientific-validation tests. Public access, a complete corpus, a
+passing acceptance report or a successful deployment does not establish a first
+scientific release.
+
+Label hosted data and public descriptions as testing only. Manifests and their
+latest pointers must agree on `testing_only: true`. Keep testing objects and
+pointers isolated from future production activation. Implement and verify these
+safeguards before uploads if the current tools do not support them. Do not mutate
+a frozen manifest or reuse its acceptance report merely to change the test flag.
+
+Immutable timestamped snapshots and pinned downloads remain valid for test
+reproducibility; `release_id` is a snapshot identifier, not authorization for a
+formal release. Scientific checks, licensing/citation requirements and explicit
+upload authorization still apply. Do not promote data to production, tag a first
+data or software release, or claim production availability without explicit
+authorization. Testing and infrastructure preparation do not grant it.
+
 ## Scientific validation authority
 
 For GeoCSV validation and scientific comparison decisions, consult the current
