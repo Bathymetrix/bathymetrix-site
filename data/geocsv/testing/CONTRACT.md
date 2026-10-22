@@ -1,19 +1,20 @@
 # GeoCSV publication and download agreement
 
-The canonical cross-repository design is `mermaid-geocsv/docs/HOSTING.md`, agreed
-2026-10-22 and implemented by the fetch client in 0.24.0. This document adopts
+The cross-repository design is documented in `mermaid-geocsv/docs/HOSTING.md`.
+The fetch client implements the timestamp protocol in 0.24.0. This document adopts
 that production protocol for the website. It supersedes the earlier test-only
 plan. [Website implementation and deployment status](../../../docs/GEOCSV_HOSTING.md)
 records the current scripts, diagram, and remaining launch gates.
 
 ## Ownership
 
-The website chat owns staging, hosting, publication, URLs and manifests in
-`bathymetrix-site`. The package chat owns fetch, reading, association, SAC export,
-and scientific validation in `mermaid-geocsv`. Upstream automaid owns processed
-outputs. Coordinate shared URL/manifest/report changes across owners; each chat
-edits its own repository. No scientific validation logic is copied into the
-website. Keep both hosting diagrams/checklists synchronized through handoffs.
+`bathymetrix-site` owns snapshot creation, full-archive validation, its versioned
+report format and acceptance gate, publication, hosting, URLs and manifests.
+`mermaid-geocsv` owns public fetch/read/associate/write_sac APIs and scientific
+behavior. Upstream automaid owns processed outputs. The website validator calls
+the public APIs and performs independent reference comparisons; it does not
+duplicate parsing, matching or SAC projection. Keep both hosting diagrams and
+checklists synchronized.
 
 ## Production collection and legacy test collection
 
@@ -95,6 +96,11 @@ digits, `.`, `_`, `-`. Filenames have the same character rule; `manifest.json` i
 reserved by the client. The creator uses a reviewed serial-to-ID mapping and
 requires all Station values to agree; it does not infer an ID from a serial.
 
+Recordless GeoCSV sources are never staged or published. The local-only staging
+inventory records all inputs and explicit recordless exclusions. Validator and
+publisher recheck those exclusions and reject any excluded original waveforms.
+The sidecar is not an R2 release object. The report binds its hash separately.
+
 The creator emits entries sorted by ID. Production provenance uses a
 processed-root-relative `source_path` (`<serial>/geo_DET_REQ.csv`) and
 `manual_edits: false`. Payloads are copied verbatim. Manifests are deterministic;
@@ -131,13 +137,21 @@ manifest, verify public HTTPS bytes and explicitly pinned `geocsv.fetch`, then
 update latest last. Failure leaves the previous latest selected. Serialize
 publication and use conditional object writes to prevent conflicting updates.
 
-The package owns `scripts/validate_snapshot.py`, the concrete report format,
-and the full local run against original MiniSEED and independently read paired
-SAC. Its sampled fixture checker is insufficient. Reports must bind the exact
-frozen manifest and complete file inventory, cover every waveform pair, and
-record failures, unsupported/unexamined inputs, versions, checks, and limits.
-No report schema or passing report is invented here. The publisher currently
-rejects all activation attempts until that acceptance protocol is implemented.
+The website owns `scripts/geocsv/validate_snapshot.py`, the version 2 report
+format and `scripts/geocsv/acceptance.py`. Validation covers every original
+MiniSEED and independently read paired SAC for included instruments; `.mhpsd`
+spectra are outside scope and are not counted. Missing pairs, unsupported
+waveforms and unexamined comparisons block acceptance.
+
+Reports bind the exact frozen manifest and staged file inventory, full source
+waveform fingerprints and pair accounting, scientific checks/limits/results,
+failures/maxima, and package/code/dependency versions. Acceptance rechecks inputs
+and complete coverage rather than trusting a success flag. See
+[the concrete report protocol](../../../docs/GEOCSV_VALIDATION.md). Scientific
+acceptance requires a passing complete archive run for each candidate. The
+2026-10-22 version-2 run passed all 43,365 original waveform pairs and its report
+passed the publisher's acceptance gate; see
+[archive findings](../../../docs/GEOCSV_ARCHIVE_FINDINGS.md).
 
 An accepted report may be stored as `validation.json` outside the manifest's
 GeoCSV files list. It binds the manifest; the manifest never depends on its hash.

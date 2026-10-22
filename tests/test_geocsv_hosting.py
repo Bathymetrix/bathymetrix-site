@@ -186,7 +186,7 @@ class Publication(unittest.TestCase):
                 publisher.require_scientific_acceptance(self.candidate, report)
         self.assertEqual(self.store.writes, [])
 
-    def test_cli_plan_is_read_only_and_publication_always_blocked(self):
+    def test_cli_plan_is_read_only_and_publication_requires_full_evidence(self):
         script = Path(publisher.__file__)
         command = [sys.executable, "-B", str(script), "--candidate", str(self.candidate)]
         plan = subprocess.run([*command, "--plan"], capture_output=True, text=True)
@@ -194,7 +194,7 @@ class Publication(unittest.TestCase):
         self.assertIn("BLOCKED", plan.stdout)
         blocked = subprocess.run([*command, "--report", str(self.report)], capture_output=True, text=True)
         self.assertNotEqual(blocked.returncode, 0)
-        self.assertIn("No reports can currently authorize", blocked.stderr)
+        self.assertIn("validation report and explicit --source-root", blocked.stderr)
 
     def test_https_identity_and_checksum_enforced(self):
         # Use a real context-managed bytes stream with response metadata.

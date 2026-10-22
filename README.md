@@ -39,6 +39,8 @@ serves the website, R2 stores payloads, and a Worker route serves `/geocsv/*`.
 See [the implementation and DNS migration runbook](docs/GEOCSV_HOSTING.md) and
 [the shared production contract](data/geocsv/testing/CONTRACT.md).
 
-Snapshot staging and Worker routing are implemented locally. The publisher's
-scientific acceptance gate remains closed pending the package-owned full-archive
-validator/report protocol. No production service is activated by these files.
+The website owns snapshot creation, full-archive validation, the versioned
+acceptance report and publication gate. These tools and Worker routing are
+implemented locally. Scientific acceptance requires a successful full archive
+run. See [validation and report requirements](docs/GEOCSV_VALIDATION.md).
+No production service is activated by these files.

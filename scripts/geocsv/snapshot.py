@@ -50,7 +50,7 @@ def fingerprint(path):
     return size, checksum.hexdigest()
 
 
-def inspect_geocsv(path, instrument_id):
+def inspect_source_geocsv(path, instrument_id):
     """Read declarations and Station values; leave scientific parsing to the validator."""
     created = []
     station_index = None
@@ -80,9 +80,16 @@ def inspect_geocsv(path, instrument_id):
                 count += 1
     if len(created) != 1:
         raise ValueError(f"{path}: requires exactly one valid UTC #created, found {len(created)}")
-    if station_index is None or not count:
+    if station_index is None:
+        raise ValueError(f"{path}: missing header")
+    return created[0], count
+
+
+def inspect_geocsv(path, instrument_id):
+    created, count = inspect_source_geocsv(path, instrument_id)
+    if not count:
         raise ValueError(f"{path}: no instrument records")
-    return created[0]
+    return created
 
 
 def check_manifest(manifest):

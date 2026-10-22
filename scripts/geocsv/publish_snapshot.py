@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preflight and publication machinery. Scientific report acceptance is not yet wired."""
+"""Require full-archive acceptance, then upload, verify and select latest last."""
 
 import argparse
 from contextlib import contextmanager
@@ -11,23 +11,15 @@ from urllib.parse import quote, urlsplit
 from urllib.request import Request, urlopen
 
 from snapshot import fingerprint, json_bytes, require_external_workspace, verify_candidate
+from acceptance import AcceptanceError, require_acceptance
 
 
-class AcceptanceUnavailable(RuntimeError):
-    pass
+AcceptanceUnavailable = AcceptanceError  # Retain the private preflight exception name.
 
 
-def require_scientific_acceptance(candidate, report):
-    """Fail closed until mermaid-geocsv defines its full-archive report protocol.
-
-    Do not accept an arbitrary {"passed": true}, the sampled fixture checker,
-    a report from another candidate, or an operator override.
-    """
-    raise AcceptanceUnavailable(
-        "Publication blocked: mermaid-geocsv/scripts/validate_snapshot.py and its "
-        "candidate-bound full-archive report format are not yet implemented/agreed. "
-        "No reports can currently authorize production publication."
-    )
+def require_scientific_acceptance(candidate, report, source_root=None):
+    """Consume the website-owned versioned report and recheck exact input coverage."""
+    return require_acceptance(candidate, report, source_root)
 
 
 class R2Store:
@@ -98,7 +90,7 @@ def verify_https(url, expected):
         raise ValueError(f"public HTTPS checksum mismatch: {url}")
 
 
-def _transfer_and_verify(candidate, report, store, base_url):
+def _transfer_and_verify(candidate, report, store, base_url, *, accepted=None, report_fingerprint=None):
     """Publication sequence, reachable from the CLI only after scientific acceptance.
 
     Kept separate to test ordering and failures with an in-memory transport;
@@ -108,6 +100,10 @@ def _transfer_and_verify(candidate, report, store, base_url):
     candidate = Path(candidate)
     frozen_manifest = (candidate / "manifest.json").read_bytes()
     frozen_report = fingerprint(report)
+    if accepted is not None and (
+            accepted["candidate"] != {"manifest_sha256": hashlib.sha256(frozen_manifest).hexdigest(), "files": manifest["files"]}
+            or frozen_report != report_fingerprint):
+        raise ValueError("candidate/report changed after scientific acceptance")
     release = manifest["release_id"]
     component = quote(release, safe="")
     prefix = f"geocsv/releases/{release}/"
@@ -175,6 +171,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate", required=True, type=Path)
     parser.add_argument("--report", type=Path)
+    parser.add_argument("--source-root", type=Path, help="read-only processed root for report/source fingerprint rechecks")
     parser.add_argument("--plan", action="store_true", help="verify local candidate and display plan; no network writes")
     parser.add_argument("--base-url", default="https://bathymetrix.com/geocsv/")
     parser.add_argument("--endpoint-url", help="R2 S3 API endpoint; no credentials in arguments")
@@ -195,15 +192,16 @@ def main():
             print(json.dumps({"release_id": manifest["release_id"], "files": len(manifest["files"]),
                               "manifest_sha256": fingerprint(candidate / "manifest.json")[1],
                               "base_url": base_url,
-                              "publication": "BLOCKED pending scientific report protocol"}, indent=2))
+                              "publication": "BLOCKED" if not args.report or not args.source_root else "acceptance check required"}, indent=2))
             return
         with publication_lock(workspace):
-            require_scientific_acceptance(candidate, args.report)
-            # Deliberately unreachable until the owner-supplied report gate is implemented.
+            accepted_fingerprint = fingerprint(args.report) if args.report else None
+            accepted = require_scientific_acceptance(candidate, args.report, args.source_root)
             if not args.endpoint_url or not args.bucket:
                 raise ValueError("R2 endpoint and bucket required")
             store = R2Store(args.endpoint_url, args.bucket)
-            _transfer_and_verify(candidate, args.report, store, base_url)
+            _transfer_and_verify(candidate, args.report, store, base_url,
+                                 accepted=accepted, report_fingerprint=accepted_fingerprint)
     except (ValueError, OSError, RuntimeError) as exc:
         parser.exit(1, f"Not published: {exc}\n")
 
