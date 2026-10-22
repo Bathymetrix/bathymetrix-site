@@ -3,8 +3,9 @@
 `bathymetrix-site` owns the complete create → validate → publish workflow,
 including the versioned scientific acceptance report. The public collection is
 planned at `https://bathymetrix.com/geocsv/`. GitHub Pages remains the website
-origin, Squarespace remains registrar, and private Cloudflare R2 storage supplies
-the read-only Worker route. Infrastructure has not been activated.
+origin and Squarespace remains registrar. The planned data service uses private
+Cloudflare R2 storage and a read-only Worker route. That infrastructure is not
+activated.
 
 `mermaid-geocsv` supplies the public `read`, `associate`, `write_sac` and `fetch`
 APIs and their scientific contracts. It does not supply a publication validator

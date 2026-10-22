@@ -26,6 +26,15 @@ outside the repository. Use placeholders or redacted examples when documenting
 procedures. Public DNS visibility does not authorize copying an operational
 inventory or private account context into this repository.
 
+## Documentation Voice
+
+Write documentation in a direct, factual, statement-based voice. State the
+configuration, decisions and requirements without conversational attribution
+such as "the user reports", "you said" or "we agreed". Mark planned behavior,
+unverified information and uncertainty explicitly rather than presenting them
+as established facts. Omit personal account and billing details unless
+explicitly requested for the document.
+
 ## Scientific validation authority
 
 For GeoCSV validation and scientific comparison decisions, consult the current
@@ -40,3 +49,4 @@ Distinguish matching thresholds from independent representation comparisons.
 If the package has no applicable rule, report the ambiguity and coordinate an
 explicit decision before accepting production data. Record agreed comparison
 changes in the versioned report contract and keep both hosting plans synchronized.
+

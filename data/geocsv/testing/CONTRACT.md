@@ -18,7 +18,7 @@ checklists synchronized.
 
 ## Production collection and legacy test collection
 
-Production base: **`https://bathymetrix.com/geocsv/`**. GitHub Pages remains the
+Planned production base: **`https://bathymetrix.com/geocsv/`**. GitHub Pages remains the
 website origin, Squarespace remains registrar, and a Cloudflare Worker route
 serves `/geocsv/*` from R2 after approved DNS/proxy onboarding. This architecture
 is prepared locally, not operational. The landing page remains on GitHub Pages.

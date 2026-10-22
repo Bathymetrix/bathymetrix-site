@@ -18,8 +18,8 @@ and SHA-256 for the test fixture.
 
 See [the download agreement](CONTRACT.md) for the shared URL layout, manifest
 fields, checksum definitions, release selection, and repository ownership.
-The website chat maintains this agreement; the `mermaid-geocsv` chat implements
-and tests the Python client against it.
+`bathymetrix-site` maintains the publication and download contract.
+`mermaid-geocsv` implements and tests the Python client against that contract.
 
 ## Local preview
 
@@ -28,6 +28,7 @@ From the website repository, run `python3 -m http.server 8000` and visit
 fetcher's collection base URL. A future deployed test uses the same relative
 layout, with a configurable base URL.
 
-Routine automated fetch tests should serve the Python package's local fixture
-through a local HTTP server and must not require this website checkout or an
-internet connection. The fetcher and its tests remain to be implemented.
+Routine package fetch tests serve package-local fixtures through a local HTTP
+server and do not require this website checkout or an internet connection. The
+fetch client and its tests are implemented in `mermaid-geocsv`. Website integration
+tests exercise that client against locally generated timestamp snapshots.

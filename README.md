@@ -35,7 +35,8 @@ It is separate from future scientific data releases.
 ## GeoCSV production hosting preparation
 
 The planned public collection is `https://bathymetrix.com/geocsv/`. GitHub Pages
-serves the website, R2 stores payloads, and a Worker route serves `/geocsv/*`.
+serves the website. The planned data service uses R2 for payload storage and a
+Worker route for `/geocsv/*`; that infrastructure is not deployed.
 See [the implementation and DNS migration runbook](docs/GEOCSV_HOSTING.md) and
 [the shared production contract](data/geocsv/testing/CONTRACT.md).
 
