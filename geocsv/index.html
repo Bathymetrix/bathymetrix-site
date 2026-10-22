@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MERMAID GeoCSV | Bathymetrix</title>
+  <meta name="description" content="MERMAID GeoCSV metadata, reproducible releases, and Python access.">
+  <link rel="canonical" href="https://bathymetrix.com/geocsv/">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="Bathymetrix home">
+      <img class="brand-mark" src="/assets/bathymetrix-wordmark.png" alt="Bathymetrix® logo">
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" data-nav-toggle>
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="site-nav" aria-label="Main navigation" data-nav>
+      <ul><li><a href="/work.html">Work</a></li><li><a href="/about.html">About</a></li><li><a href="/contact.html">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+<main class="container" style="max-width: 850px; padding: 4rem 1.5rem;">
+  <h1>MERMAID GeoCSV</h1>
+  <p>GeoCSV pairs a text table with comments describing its fields, units, and
+    provenance. MERMAID GeoCSV records describe drifting hydrophone positions,
+    measurements, and seismic waveform segments; the waveform samples are
+    distributed separately.</p>
+  <p>The <a href="https://github.com/EarthScope/GeoCSV">GeoCSV specification</a>
+    describes the format. <a href="https://github.com/Bathymetrix/mermaid-geocsv">mermaid-geocsv</a>
+    provides Python tools for fetching and reading MERMAID metadata, associating
+    it with waveforms, and exporting located SAC files.</p>
+  <h2>Publication status</h2>
+  <p>The production collection is being prepared. Production downloads are not
+    yet available. Full archive validation, data licensing, and citation details
+    must be completed before the first release.</p>
+  <p>An <a href="/data/geocsv/testing/">illustrative download test collection</a>
+    is separate from scientific data releases.</p>
+  <h2>Reproducible access</h2>
+  <p>Each production release will retain the exact upstream creation timestamp,
+    a complete manifest, and checksums for every file. A Python download will
+    select one release for the whole operation. A specific release can be
+    requested again without relying on whichever release is latest.</p>
+  <p>Once the service is published, Python access will use:</p>
+  <pre style="overflow-x: auto;"><code>from mermaid import geocsv
+
+results = geocsv.fetch(
+    "P0006",
+    base_url="https://bathymetrix.com/geocsv/",
+    output_dir="downloads",
+)
+tables = geocsv.read(results)</code></pre>
+  <p>For questions about metadata or publication, <a href="/contact.html">contact Bathymetrix</a>.</p>
+</main>
+<script src="/js/main.js"></script>
+</body>
+</html>

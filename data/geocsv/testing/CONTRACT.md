@@ -1,106 +1,146 @@
-# GeoCSV download agreement
+# GeoCSV publication and download agreement
 
-This is the shared agreement between the Bathymetrix website and
-`mermaid-geocsv` for developing and testing downloads. It describes the existing
-`test-001` collection. Production hosting and the public Python fetch API remain
-to be established; this is not a production data release.
+The canonical cross-repository design is `mermaid-geocsv/docs/HOSTING.md`, agreed
+2026-10-22 and implemented by the fetch client in 0.24.0. This document adopts
+that production protocol for the website. It supersedes the earlier test-only
+plan. [Website implementation and deployment status](../../../docs/GEOCSV_HOSTING.md)
+records the current scripts, diagram, and remaining launch gates.
 
 ## Ownership
 
-- The `bathymetrix-site` chat owns hosting, website documentation, release
-  publication, URLs, and manifests.
-- The `mermaid-geocsv` chat owns the Python fetch API, downloads, local caching,
-  and tests.
-- URL layout, manifest fields, checksum meaning, and release selection are
-  shared decisions, recorded here. Coordinate changes before changing either
-  side; each chat edits its own repository.
+The website chat owns staging, hosting, publication, URLs and manifests in
+`bathymetrix-site`. The package chat owns fetch, reading, association, SAC export,
+and scientific validation in `mermaid-geocsv`. Upstream automaid owns processed
+outputs. Coordinate shared URL/manifest/report changes across owners; each chat
+edits its own repository. No scientific validation logic is copied into the
+website. Keep both hosting diagrams/checklists synchronized through handoffs.
 
-## URLs
+## Production collection and legacy test collection
 
-A collection base URL ends with `/`. The current local test base is
-`http://localhost:8000/data/geocsv/testing/` when serving the website repository.
-The downloader must accept a configurable base URL so local tests and a future
-HTTPS endpoint can use the same layout. A production hostname is not configured
-by this agreement.
+Production base: **`https://bathymetrix.com/geocsv/`**. GitHub Pages remains the
+website origin, Squarespace remains registrar, and a Cloudflare Worker route
+serves `/geocsv/*` from R2 after approved DNS/proxy onboarding. This architecture
+is prepared locally, not operational. The landing page remains on GitHub Pages.
 
-Relative to that base:
+Relative public paths:
 
 ```text
 latest.json
-releases/<release_id>/manifest.json
-releases/<release_id>/<filename>
+latest/<instrument_id>.geocsv
+releases/<encoded-release-component>/manifest.json
+releases/<encoded-release-component>/<instrument_id>.geocsv
+releases/<encoded-release-component>/validation.json
 ```
 
-The current release ID is `test-001`. Each release has a complete inventory of
-its files. Instrument identifiers and filenames retain their declared spelling
-and case. Files are discovered from the manifest, not by scraping HTML or
-probing sequential instrument numbers.
+`latest/<instrument_id>.geocsv` returns a temporary 302 redirect. Fetch clients
+use latest.json once and pin an immutable release, not convenience redirects.
+The publisher stores keys under `geocsv/` inside the private R2 bucket.
 
-## JSON fields
+The existing illustrative test collection remains at
+`/data/geocsv/testing/`, with `testing_only: true` and token `test-001`. Its fixture,
+manifest, and checksum are unchanged. Serve the website locally at
+`http://localhost:8000/data/geocsv/testing/` for integration development. Production
+snapshots are not based on the manually edited test example and stay outside Git.
 
-`latest.json` contains:
+## Literal release identity and encoded paths
+
+Production `release_id` is the exact GeoCSV `#created` value, with grammar
+`YYYY-MM-DDTHH:MM:SS[.digits]Z`, a valid calendar date, hours 00–23 and seconds
+00–59. There must be exactly one declaration per file and exact spelling agreement
+across the complete snapshot. Missing, repeated or mixed declarations raise.
+Preserve all fractional digits; do not round or reformat the identity.
+
+Compute `release_component = urllib.parse.quote(release_id, safe="")`:
+
+| Context | Example |
+| --- | --- |
+| JSON and fetch argument | `2026-10-21T22:48:33.277Z` |
+| URL and local staging/download directory | `2026-10-21T22%3A48%3A33.277Z` |
+| R2 release-key component | `2026-10-21T22:48:33.277Z` |
+
+Worker lookup decodes the URL release component exactly once. It never decodes
+again or stores `%3A` in keys. Do not double-encode `%` as `%25`. Equivalent
+instants with different fractional spellings are distinct release IDs. Token IDs
+remain supported by the client/Worker for legacy illustrative tests only.
+
+## Exact manifest protocol
+
+Latest pointer:
+
+```json
+{
+  "release_id": "2026-10-21T22:48:33.277Z",
+  "testing_only": false,
+  "manifest": "releases/2026-10-21T22%3A48%3A33.277Z/manifest.json"
+}
+```
+
+The relative manifest path must exactly match its encoded release. No
+`release_component` JSON field is needed.
+
+The immutable manifest requires `release_id`, boolean `testing_only`, and a
+`files` array. Each entry requires:
 
 | Field | Meaning |
 | --- | --- |
-| `release_id` | ID of the complete release selected as latest |
-| `testing_only` | Boolean; `true` for this test collection |
-| `manifest` | Relative path resolved against the collection base URL |
+| `instrument_id` | Unique nonempty ID, with exact spelling and case |
+| `filename` | Unique filename, resolved relative to the manifest URL |
+| `size_bytes` | Nonnegative integer count of complete uncompressed file bytes |
+| `sha256` | Lowercase 64-hex SHA-256 of those exact bytes, including comments |
+| `provenance` | Descriptive object; never interpreted as filesystem instructions |
 
-The release manifest contains:
+Production filenames are `{instrument_id}.geocsv`. Website staging accepts IDs
+starting with an ASCII letter/digit and otherwise containing only ASCII letters,
+digits, `.`, `_`, `-`. Filenames have the same character rule; `manifest.json` is
+reserved by the client. The creator uses a reviewed serial-to-ID mapping and
+requires all Station values to agree; it does not infer an ID from a serial.
 
-| Field | Meaning |
-| --- | --- |
-| `release_id` | Release ID, matching the selected release |
-| `testing_only` | Boolean; `true` for this test collection |
-| `created_utc` | UTC timestamp when the release manifest was created; not observation coverage or proof of publication |
-| `description` | Human-readable collection description |
-| `files` | Complete array of available files in the release |
+The creator emits entries sorted by ID. Production provenance uses a
+processed-root-relative `source_path` (`<serial>/geo_DET_REQ.csv`) and
+`manual_edits: false`. Payloads are copied verbatim. Manifests are deterministic;
+publication/report times must not cause same-ID manifest regeneration. Optional
+descriptive fields are retained by clients, without becoming instructions.
+`created_utc` in the legacy test manifest is descriptive, not a release ID.
 
-Each file entry contains:
+## Fetch and immutable releases
 
-| Field | Meaning |
-| --- | --- |
-| `instrument_id` | Instrument identifier, such as `P0006` |
-| `filename` | Filename resolved relative to the manifest URL |
-| `size_bytes` | Integer byte count of the downloaded GeoCSV file |
-| `sha256` | Lowercase hexadecimal SHA-256 of those same file bytes |
-| `provenance` | Source description retained with the manifest |
+An explicit literal release ID bypasses latest. Latest is read once per fetch
+operation; manifest identity and test flags must agree. A missing release or
+instrument raises without fallback. Files are discovered from the manifest,
+not HTML scraping or guessed sequential IDs. Downloads are streamed and accepted
+only after size/SHA-256 checks. Pin/cache directories by encoded release, and
+retain the exact manifest and literal release provenance.
 
-Current provenance fields are `source_path`, `manual_edits` (boolean), and
-`notes`. The source path is descriptive provenance, not a URL or an instruction
-to access the publisher's filesystem. Checksums describe the released test
-fixture only. Neither checksums nor copies of earlier source variants are part
-of the collection.
+Under an existing release ID, payloads and manifests are immutable. Identical
+retries reuse them; differing bytes (including comments) or inventories raise.
+Unchanged historical records with updated comments and a new shared timestamp
+are valid. Retain prior releases. Large files, full snapshots, inventories, and
+validation reports live in an external publication workspace outside Git and
+the protected processed tree.
 
-## Release selection and verification
+Latest responses and redirects bypass caches. Successful immutable objects are
+cached deliberately; misses/errors are not. Downloads honor
+`Accept-Encoding: identity` with exact bytes and no transformation. Compression
+is outside this protocol; coordinate any change before implementation.
 
-For latest selection, fetch `latest.json` once per operation, resolve its
-manifest path, and verify the manifest's release ID matches the pointer.
-Download all requested files from that manifest's release. Do not reread latest
-between files, which could mix releases during a publication update.
+## Scientific publication gate
 
-For an explicit release ID, request `releases/<release_id>/manifest.json`
-directly and verify its release ID. Do not consult latest or silently fall back
-to another release when an explicit release is unavailable.
+Freeze the candidate, obtain its full-archive scientific acceptance report,
+recheck the complete manifest/inventory/hashes, upload payloads before the
+manifest, verify public HTTPS bytes and explicitly pinned `geocsv.fetch`, then
+update latest last. Failure leaves the previous latest selected. Serialize
+publication and use conditional object writes to prevent conflicting updates.
 
-Select instruments from `files`. A missing instrument is an error, not an
-invitation to retrieve it from a different release. Verify byte count and
-SHA-256 before accepting each download into the local cache or returning it as
-successful. Preserve the release ID and manifest alongside downloaded files.
-A cache must distinguish releases; an instrument ID alone is insufficient.
-Exact Python signatures, return values, and cache locations belong to the
-`mermaid-geocsv` chat.
+The package owns `scripts/validate_snapshot.py`, the concrete report format,
+and the full local run against original MiniSEED and independently read paired
+SAC. Its sampled fixture checker is insufficient. Reports must bind the exact
+frozen manifest and complete file inventory, cover every waveform pair, and
+record failures, unsupported/unexamined inputs, versions, checks, and limits.
+No report schema or passing report is invented here. The publisher currently
+rejects all activation attempts until that acceptance protocol is implemented.
 
-The current endpoint serves plain `.geocsv` files. No compressed-file checksum
-semantics are defined here. Coordinate that addition if compression is adopted.
-
-## Publication and testing
-
-A published release ID is immutable. Corrections require a new release ID.
-Upload a complete release, verify its files against the manifest, then update
-`latest.json`. The latest pointer may change; release files and manifests do not.
-
-Routine Python tests use a local HTTP server and package-local fixtures without
-requiring internet access or the website checkout. A public test endpoint is an
-optional integration check. Test fixtures are explicitly marked `testing_only`;
-production adoption requires agreement on its base URL and release policy.
+An accepted report may be stored as `validation.json` outside the manifest's
+GeoCSV files list. It binds the manifest; the manifest never depends on its hash.
+Public report provenance is source-relative. Data license and citation remain
+owner decisions before publication. No DNS activation, production publication,
+commit, or software release is authorized by this document.
