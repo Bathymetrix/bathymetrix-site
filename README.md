@@ -21,8 +21,8 @@ outside Git. Scientific parsing, association and SAC export use `mermaid-geocsv`
 - The initial full-archive run passed all 43,365 waveform pairs and the acceptance
   gate; see [archive findings](docs/GEOCSV_ARCHIVE_FINDINGS.md).
 - Cloudflare DNS onboarding and website proxy/TLS setup are complete; public
-  website HTTPS, redirects and email checks passed. Automated-client access and
-  DNSSEC restoration remain pending; DNSSEC is disabled.
+  website HTTPS, redirects and email checks passed. Download-path Python HTTP
+  checks also pass. DNSSEC restoration remains pending; DNSSEC is disabled.
 - Data licensing/citation, R2/Worker deployment and live download verification
   remain pending. The production download service is not deployed.
 

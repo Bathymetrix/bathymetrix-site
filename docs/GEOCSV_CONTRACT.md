@@ -21,8 +21,9 @@ checklists synchronized.
 Planned production base: **`https://bathymetrix.com/geocsv/`**. GitHub Pages remains the
 website origin and Squarespace remains registrar. Cloudflare authoritative DNS
 onboarding and website proxy activation are complete. Full (strict) is configured
-and public website HTTPS and post-proxy email checks pass. Automated-client
-access and DNSSEC restoration remain pending; DNSSEC is disabled. The planned Worker
+and public website HTTPS and post-proxy email checks pass. The scoped BIC
+exception permits normal Python HTTP requests under `/geocsv/`. Full download
+verification and DNSSEC restoration remain pending; DNSSEC is disabled. The planned Worker
 route serves `/geocsv/*` from private R2 storage. The GeoCSV download service is
 prepared locally, not operational. The landing page remains on GitHub Pages.
 

@@ -25,7 +25,7 @@ fixed in the package; the website does not duplicate matching or projection.
 | Cloudflare authoritative DNS | Onboarded; imported records compared with Squarespace |
 | Website proxy/TLS | Universal edge certificate Active; Full (strict) configured; apex/www proxied and public HTTPS checks passed |
 | Email and DNSSEC | Post-proxy send/receive checks passed; DNSSEC disabled |
-| Automated-client access | Browser Integrity Check blocks default Python requests; download-path exception and retesting pending |
+| Automated-client access | Scoped BIC exception deployed; normal Python GET/HEAD and fetch-client manifest access verified; complete downloads pending |
 | Licensing/citation, R2/Worker deployment and live downloads | Pending |
 
 The 2026-10-22 complete local archive run passed all 43,365 original waveform
@@ -206,35 +206,33 @@ activation, apex/www HTTPS validated successfully through Cloudflare, HTTP and
 returned 200 with Cloudflare edge responses. The Active Universal certificate
 covers apex/www. Fresh post-proxy email sending and receiving both passed.
 
-Follow-up GET and HEAD probes with `Python-urllib/3.12` received 403. Changing
-only the user agent to an explicit verification-tool name returned the expected
-200 or 301. The same user-agent distinction affected `/geocsv/` with GET
-and identity encoding. The fetch
-client and publisher use Python urllib without an explicit user agent.
-Cloudflare Security Events identified Browser Integrity Check as the blocking
-feature. Successful website probes do not establish automated-download readiness.
-
-The proposed adjustment is a configuration rule that disables only
+Browser Integrity Check initially blocked ordinary Python urllib requests
+under `/geocsv/` with 403. Cloudflare Security Events identified the blocking
+feature. A configuration rule now disables only
 [Browser Integrity Check](https://developers.cloudflare.com/waf/tools/browser-integrity-check/)
-for GET/HEAD requests on the collection's apex/www hostnames under `/geocsv/`
-only. Other paths and security settings retain their existing policy. This
-exception is not yet deployed or verified. Keep the actual
-rule configuration and account-specific records outside the repository. After
-coordinated deployment, retest ordinary urllib requests under `/geocsv/`.
-Complete unmodified fetch-client verification against a separate illustrative
-release under that same base once R2/Worker test hosting is prepared. This does
+for GET/HEAD requests on the collection's apex/www hostnames under `/geocsv/`.
+Other paths and security settings retain their existing policy. Keep actual
+rule configuration and account-specific records outside the repository.
+
+Post-deployment checks on 2026-10-22 passed with the normal Python user agent and
+identity encoding: GET and HEAD returned 200 for `/geocsv/` and 404 for the
+unpublished `/geocsv/latest.json`, on both apex and www. The unmodified
+`geocsv.fetch` client reached that expected manifest 404 rather than a security
+403. This verifies edge access, not a complete download. Complete unmodified
+fetch-client and publisher HTTP verification against a separate illustrative
+release under the same base after R2/Worker test hosting is prepared. This does
 not authorize production data publication.
 
-The remaining sequence is: resolve automated-client access, prepare private
-R2/Worker hosting, verify downloads, and restore DNSSEC. Production data activation
+The remaining sequence is: prepare private R2/Worker hosting, verify complete
+downloads and publication transport, and restore DNSSEC. Production data activation
 separately requires current scientific acceptance and explicit authorization.
 Each infrastructure change requires explicit coordination.
 
 Keep actual zone exports, inventories, account context and deployment
 configuration outside this repository in an approved private location; use
 placeholders in repository procedures. The procedure below retains the completed
-onboarding and website proxy steps for reference. Resolve automated-client
-access before accepting deployed downloads; R2/Worker preparation is step 7.
+onboarding, website proxy and scoped client-access steps for reference.
+R2/Worker preparation is step 7; end-to-end download checks remain pending.
 
 1. **Inventory and baseline.** Export the complete existing zone from Squarespace.
    Save apex/www website records, MX priorities, SPF, DKIM selectors, DMARC,
@@ -324,8 +322,10 @@ These tests do not establish live infrastructure behavior or archive acceptance.
 - [x] Verify fresh email sending and receiving after proxy activation.
 - [x] Identify Browser Integrity Check as the feature blocking default Python
   requests through Cloudflare Security Events.
-- [ ] Coordinate a download-path BIC exception and verify normal urllib and
-  unmodified fetch/publisher HTTP clients.
+- [x] Deploy the scoped download-path BIC exception; verify ordinary urllib
+  GET/HEAD and unmodified fetch access to the expected unpublished manifest 404.
+- [ ] Verify full unmodified fetch downloads and publisher HTTP checks against
+  hosted test objects after R2/Worker deployment.
 - [ ] Restore and verify DNSSEC after hosting verification; it is currently disabled.
 - [ ] Deploy and verify R2/Worker, cache controls, origin TLS and public exact bytes.
 - [ ] Test live pinned/latest, one/all instruments, memory/disk and scientific use.
