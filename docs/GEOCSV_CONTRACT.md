@@ -3,7 +3,7 @@
 The cross-repository design is documented in `mermaid-geocsv/docs/HOSTING.md`.
 The fetch client implements the timestamp protocol in 0.24.0. This document adopts
 that production protocol for the website. It supersedes the earlier test-only
-plan. [Website implementation and deployment status](../../../docs/GEOCSV_HOSTING.md)
+plan. [Website implementation and deployment status](GEOCSV_HOSTING.md)
 records the current scripts, diagram, and remaining launch gates.
 
 ## Ownership
@@ -16,7 +16,7 @@ the public APIs and performs independent reference comparisons; it does not
 duplicate parsing, matching or SAC projection. Keep both hosting diagrams and
 checklists synchronized.
 
-## Production collection and legacy test collection
+## Production collection
 
 Planned production base: **`https://bathymetrix.com/geocsv/`**. GitHub Pages remains the
 website origin and Squarespace remains registrar. Cloudflare authoritative DNS
@@ -40,12 +40,9 @@ releases/<encoded-release-component>/validation.json
 use latest.json once and pin an immutable release, not convenience redirects.
 The publisher stores keys under `geocsv/` inside the private R2 bucket.
 
-The legacy illustrative test collection is retained at `/data/geocsv/testing/`,
-with `testing_only: true` and token `test-001`. Its fixture, manifest and checksum
-are unchanged. It remains available for historical/local testing, outside the
-production BIC exception and hosting verification. New hosted-client checks use
-an illustrative release under `/geocsv/` after test hosting is prepared. Production
-snapshots are not based on the manually edited test example and stay outside Git.
+Hosted-client checks use an illustrative release under `/geocsv/` after test
+hosting is prepared. Test fixtures are not production scientific releases.
+Production snapshots use verbatim processed sources and stay outside Git.
 
 ## Literal release identity and encoded paths
 
@@ -66,7 +63,7 @@ Compute `release_component = urllib.parse.quote(release_id, safe="")`:
 Worker lookup decodes the URL release component exactly once. It never decodes
 again or stores `%3A` in keys. Do not double-encode `%` as `%25`. Equivalent
 instants with different fractional spellings are distinct release IDs. Token IDs
-remain supported by the client/Worker for legacy illustrative tests only.
+remain supported by the client/Worker for illustrative test releases only.
 
 ## Exact manifest protocol
 
@@ -110,7 +107,7 @@ processed-root-relative `source_path` (`<serial>/geo_DET_REQ.csv`) and
 `manual_edits: false`. Payloads are copied verbatim. Manifests are deterministic;
 publication/report times must not cause same-ID manifest regeneration. Optional
 descriptive fields are retained by clients, without becoming instructions.
-`created_utc` in the legacy test manifest is descriptive, not a release ID.
+`created_utc`, when supplied, is descriptive rather than a release ID.
 
 ## Fetch and immutable releases
 
@@ -151,11 +148,11 @@ Reports bind the exact frozen manifest and staged file inventory, full source
 waveform fingerprints and pair accounting, scientific checks/limits/results,
 failures/maxima, and package/code/dependency versions. Acceptance rechecks inputs
 and complete coverage rather than trusting a success flag. See
-[the concrete report protocol](../../../docs/GEOCSV_VALIDATION.md). Scientific
+[the concrete report protocol](GEOCSV_VALIDATION.md). Scientific
 acceptance requires a passing complete archive run for each candidate. The
 2026-10-22 version-2 run passed all 43,365 original waveform pairs and its report
 passed the publisher's acceptance gate; see
-[archive findings](../../../docs/GEOCSV_ARCHIVE_FINDINGS.md).
+[archive findings](GEOCSV_ARCHIVE_FINDINGS.md).
 
 An accepted report may be stored as `validation.json` outside the manifest's
 GeoCSV files list. It binds the manifest; the manifest never depends on its hash.

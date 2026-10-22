@@ -10,8 +10,6 @@ Public website and GeoCSV data publication tooling for Bathymetrix.
   acceptance before publication.
 - **Download service:** Cloudflare Worker code in `workers/geocsv/` streams
   releases from R2 and serves the latest-release pointer.
-- **Legacy test fixtures:** small illustrative files retained in
-  [`data/geocsv/testing/`](data/geocsv/testing/README.md).
 
 Production payloads, validation reports and operational configuration remain
 outside Git. Scientific parsing, association and SAC export use `mermaid-geocsv`.
@@ -34,11 +32,11 @@ outside Git. Scientific parsing, association and SAC export use `mermaid-geocsv`
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000`. This previews the static pages and test collection;
-it does not run the Worker or publish data.
+Open `http://localhost:8000`. This previews the static pages; it does not run
+the Worker or publish data.
 
 ## Technical documentation
 
 - [Hosting architecture, workflow, tests and deployment](docs/GEOCSV_HOSTING.md)
 - [Scientific validation and acceptance report](docs/GEOCSV_VALIDATION.md)
-- [Publication and download contract](data/geocsv/testing/CONTRACT.md)
+- [Publication and download contract](docs/GEOCSV_CONTRACT.md)

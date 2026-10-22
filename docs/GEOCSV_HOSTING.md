@@ -208,8 +208,8 @@ covers apex/www. Fresh post-proxy email sending and receiving both passed.
 
 Follow-up GET and HEAD probes with `Python-urllib/3.12` received 403. Changing
 only the user agent to an explicit verification-tool name returned the expected
-200 or 301. The same user-agent distinction affected `/geocsv/` and
-`/data/geocsv/testing/latest.json` with GET and identity encoding. The fetch
+200 or 301. The same user-agent distinction affected `/geocsv/` with GET
+and identity encoding. The fetch
 client and publisher use Python urllib without an explicit user agent.
 Cloudflare Security Events identified Browser Integrity Check as the blocking
 feature. Successful website probes do not establish automated-download readiness.
@@ -217,9 +217,8 @@ feature. Successful website probes do not establish automated-download readiness
 The proposed adjustment is a configuration rule that disables only
 [Browser Integrity Check](https://developers.cloudflare.com/waf/tools/browser-integrity-check/)
 for GET/HEAD requests on the collection's apex/www hostnames under `/geocsv/`
-only. The legacy `/data/geocsv/testing/` collection is outside this exception
-and is not part of production hosting verification. Other paths and security
-settings retain their existing policy. This exception is not yet deployed or verified. Keep the actual
+only. Other paths and security settings retain their existing policy. This
+exception is not yet deployed or verified. Keep the actual
 rule configuration and account-specific records outside the repository. After
 coordinated deployment, retest ordinary urllib requests under `/geocsv/`.
 Complete unmodified fetch-client verification against a separate illustrative
@@ -275,8 +274,8 @@ access before accepting deployed downloads; R2/Worker preparation is step 7.
    operator access, set the read binding, deploy the Worker route, and ship the
    landing page via the normal GitHub Pages workflow. Test routing, streaming,
    no-cache latest, 404 then object availability, and identity encoding before
-   any production activation. Do not promote the illustrative `test-001` to
-   production or upload real data without the acceptance report.
+   any production activation. Do not publish illustrative fixtures as
+   production data or upload real data without the acceptance report.
 8. **Restore DNSSEC.** After the migration is stable, enable Cloudflare DNSSEC,
    install its new DS at Squarespace, and verify the new chain. Do not reuse the
    old provider's DS. Recheck website and email after enabling validation.
