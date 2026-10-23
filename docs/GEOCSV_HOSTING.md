@@ -29,7 +29,13 @@ validated snapshot.
 
 Publisher code enforces testing-only manifests and explicit testing destinations.
 Its archive is `$MERMAID/publisher`, a separate local Git repository containing
-GeoCSV products and evidence, not original waveform archives. Website private
+testing GeoCSV products and evidence under
+`geocsv/testing/{snapshots,staging,validation,publications}`, not original waveform
+archives. The local namespace is derived from `testing_only: true`. Initial
+workflow-testing artifacts may be retired through separately authorized cleanup
+after verification. They are not permanent scientific releases; bytes remain
+immutable until retirement and retired testing identities cannot be reused for
+different bytes. Production retention remains indefinite. Website private
 configuration and credentials remain outside both repositories.
 
 Cloudflare authority, website proxy/TLS, post-proxy email and scoped Python-client
@@ -37,7 +43,11 @@ access were verified on 2026-10-22. DNSSEC remains disabled. Licensing/citation,
 conditional writes, exact HTTPS downloads and DNSSEC restoration remain
 pending. R2/Worker deployment and read-only SDK/HTTPS checks passed on
 2026-10-23. Historical schema-2 archive acceptance does not accept a migrated
-schema-3 candidate.
+schema-3 candidate. Fresh full-corpus and separate P0006/P0045 schema-3 runs
+subsequently passed 43,365 and 3,292 original waveform pairs, respectively, and
+the current acceptance gates passed after the local testing-layout change. The
+full check remains temporary; only the selected candidate is in the publication
+archive. See the publisher’s [fresh findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md).
 
 ## Read-only serving workflow
 
@@ -106,10 +116,12 @@ fetch-client and publisher HTTP verification against a separate illustrative
 release under the same base after R2/Worker test hosting is prepared. This does
 not authorize production data publication.
 
-The remaining sequence is: accept the exact testing candidate, obtain upload
-authorization, verify complete downloads and publication transport, and restore
-DNSSEC. Production data activation separately requires current scientific
-acceptance and explicit authorization.
+The remaining sequence is: publish the prepared testing scope, citation and
+retirement notice through the normal website workflow; obtain explicit testing
+upload authorization; recheck the exact accepted candidate; verify complete
+downloads and publication transport; and restore DNSSEC. Production data
+activation separately requires current scientific acceptance and explicit
+authorization.
 Each infrastructure change requires explicit coordination.
 
 Keep actual zone exports, inventories, account context and deployment
@@ -190,7 +202,10 @@ run in `mermaid-publisher`; none are duplicated here.
 - [x] Separate read-only hosting from the publisher workflow and contract.
 - [x] Implement local testing namespace isolation and explicit response labeling.
 - [x] Complete DNS authority, proxy/TLS, email and scoped Python-client checks.
-- [ ] Set licensing/citation before data uploads.
+- [x] Limit hosted testing to P0006/P0045 and prepare the MH network citation.
+- [x] Obtain fresh schema-3 acceptance for the selected candidate.
+- [ ] Publish and verify the testing scope, citation and retirement notice before
+  data uploads. Full-corpus licensing remains deferred.
 - [x] Deploy approved private R2/Worker configuration and verify read-only SDK
   access. Conditional write transport remains unverified.
 - [x] Verify unchanged landing-page bytes, GET/HEAD misses, no-store errors,

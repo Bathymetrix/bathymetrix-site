@@ -86,6 +86,13 @@ upload authorization still apply. Do not promote data to production, tag a first
 data or software release, or claim production availability without explicit
 authorization. Testing and infrastructure preparation do not grant it.
 
+Initial workflow-testing snapshots may be retired through separately authorized
+cleanup after verification. They are not permanent scientific releases and their
+testing URLs do not promise indefinite availability. Preserve immutable bytes
+until retirement; never reuse retired testing identities for different bytes.
+Cleanup of hosted objects, caches, local artifacts or history still requires
+explicit authorization. Production retention remains indefinite.
+
 ## Publication ownership
 
 `mermaid-publisher` owns create, validate, gate, upload, latest activation and
