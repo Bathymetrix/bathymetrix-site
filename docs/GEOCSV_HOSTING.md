@@ -19,8 +19,9 @@ production `/geocsv/` paths and keys. Each collection has its own latest pointer
 Testing pointers require `testing_only: true`; production pointers require false.
 Testing successes carry `X-MERMAID-Testing: true` and pointer/redirect responses
 are no-store. Immutable exact-byte responses and uncached errors retain their
-existing controls. The landing page identifies testing status. No data service
-is deployed and no upload or production promotion is authorized by migration.
+existing controls. The landing page identifies testing status. The read-only
+Worker was deployed on 2026-10-23; the testing bucket remains empty. No data upload or production
+promotion is authorized by deployment.
 The initial approved hosted batch is limited to P0006 and P0045. Instrument
 scope is frozen at creation; local full-corpus validation is separate and may
 use a temporary workspace without archival. Publishing transfers the exact
@@ -33,9 +34,10 @@ configuration and credentials remain outside both repositories.
 
 Cloudflare authority, website proxy/TLS, post-proxy email and scoped Python-client
 access were verified on 2026-10-22. DNSSEC remains disabled. Licensing/citation,
-R2/Worker deployment, live SDK behavior, exact HTTPS downloads and DNSSEC
-restoration remain pending. Historical schema-2 archive acceptance does not
-accept a migrated schema-3 candidate.
+conditional writes, exact HTTPS downloads and DNSSEC restoration remain
+pending. R2/Worker deployment and read-only SDK/HTTPS checks passed on
+2026-10-23. Historical schema-2 archive acceptance does not accept a migrated
+schema-3 candidate.
 
 ## Read-only serving workflow
 
@@ -49,8 +51,8 @@ flowchart LR
 
 ## Worker deployment preparation
 
-`workers/geocsv/wrangler.example.jsonc` is an undeployed template. Keep actual
-configuration in an approved private location outside the checkout; supply the
+`workers/geocsv/wrangler.example.jsonc` is a portable deployment template. Keep
+actual configuration in an approved private location outside the checkout; supply the
 approved private bucket binding. When the configuration is outside this
 checkout, set its main entry point to an absolute path or a path relative to
 that external configuration file, rather than assuming the current directory.
@@ -64,6 +66,13 @@ keys, streams uncompressed objects, and bypasses caches for latest/redirects.
 It caches only successful immutable objects and honors no-cache verification.
 Deployment must preserve exact bytes, identity encoding, cache isolation and
 uncached misses. No generic zone cache rule should override these controls.
+
+The approved deployment on 2026-10-23 activated the existing route and private
+bucket binding. Live checks confirmed storage access, expected uncached pointer
+and object misses, and unchanged landing-page bytes. No data objects or pointers
+were written. Successful-object testing labels, exact payload bytes, immutable
+caching and conditional writes remain pending. Deployment logs and verification
+evidence are retained privately outside the checkouts.
 
 ## DNS onboarding and remaining activation steps
 
@@ -97,16 +106,18 @@ fetch-client and publisher HTTP verification against a separate illustrative
 release under the same base after R2/Worker test hosting is prepared. This does
 not authorize production data publication.
 
-The remaining sequence is: prepare private R2/Worker hosting, verify complete
-downloads and publication transport, and restore DNSSEC. Production data activation
-separately requires current scientific acceptance and explicit authorization.
+The remaining sequence is: accept the exact testing candidate, obtain upload
+authorization, verify complete downloads and publication transport, and restore
+DNSSEC. Production data activation separately requires current scientific
+acceptance and explicit authorization.
 Each infrastructure change requires explicit coordination.
 
 Keep actual zone exports, inventories, account context and deployment
 configuration outside this repository in an approved private location; use
 placeholders in repository procedures. The procedure below retains the completed
 onboarding, website proxy and scoped client-access steps for reference.
-R2/Worker preparation is step 7; end-to-end download checks remain pending.
+R2/Worker deployment in step 7 is complete; landing-page publication and
+end-to-end download checks remain pending.
 
 1. **Inventory and baseline.** Export the complete existing zone from Squarespace.
    Save apex/www website records, MX priorities, SPF, DKIM selectors, DMARC,
@@ -180,7 +191,11 @@ run in `mermaid-publisher`; none are duplicated here.
 - [x] Implement local testing namespace isolation and explicit response labeling.
 - [x] Complete DNS authority, proxy/TLS, email and scoped Python-client checks.
 - [ ] Set licensing/citation before data uploads.
-- [ ] Deploy approved private R2/Worker configuration and verify SDK transport.
+- [x] Deploy approved private R2/Worker configuration and verify read-only SDK
+  access. Conditional write transport remains unverified.
+- [x] Verify unchanged landing-page bytes, GET/HEAD misses, no-store errors,
+  identity encoding on misses and www-to-apex routing. The bucket is empty and
+  testing/production pointers are absent.
 - [ ] Verify exact deployed bytes, caches, misses, testing flags and pointer isolation.
 - [ ] Verify pinned/latest fetch, one/all instruments, memory/disk and scientific use.
 - [ ] Restore and verify DNSSEC after hosting verification.
