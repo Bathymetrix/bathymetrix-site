@@ -1,6 +1,7 @@
 {
   // Use as a template for approved deployment configuration outside this checkout.
   "name": "bathymetrix-geocsv",
+  // For an external config, resolve main to this checkout using an absolute or config-relative path.
   "main": "src/index.js",
   "compatibility_date": "2026-10-22",
   "workers_dev": false,

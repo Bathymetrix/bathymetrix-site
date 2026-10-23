@@ -137,6 +137,8 @@ test("testing collection uses isolated objects, pointer and redirects", async ()
   assert.equal(await payloadResponse.text(), "testing payload");
   assert.equal(payloadResponse.headers.get("X-MERMAID-Testing"), "true");
   const redirected = await state.request("/geocsv/testing/latest/P0006.geocsv");
+  assert.equal(redirected.headers.get("X-MERMAID-Testing"), "true");
+  assert.match(redirected.headers.get("Cache-Control"), /no-store/);
   assert.equal(redirected.headers.get("Location"), `https://bathymetrix.com/geocsv/testing/releases/${encoded}/P0006.geocsv`);
   assert.equal((await (await state.request("/geocsv/latest.json")).json()).testing_only, false);
   assert.equal(await (await state.request(`/geocsv/releases/${encoded}/P0006.geocsv`)).text(), payload);

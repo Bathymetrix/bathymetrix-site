@@ -79,7 +79,7 @@ export async function handle(request, env, ctx, dependencies = {}) {
       }
       if (!manifest.files.some(entry => entry.filename === filename)) return message("Instrument not found", 404);
       const location = new URL(`releases/${encodeURIComponent(selected.value.release_id)}/${filename}`, new URL(collectionRoot, url));
-      return new Response(null, { status: 302, headers: { Location: location.href, "Cache-Control": NO_CACHE } });
+      return new Response(null, { status: 302, headers: { Location: location.href, "Cache-Control": NO_CACHE, ...testingHeaders } });
     }
     const key = releaseKey(url.pathname);
     if (!key) return message("Not found", 404);

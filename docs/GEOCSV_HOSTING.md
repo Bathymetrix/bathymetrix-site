@@ -21,6 +21,10 @@ Testing successes carry `X-MERMAID-Testing: true` and pointer/redirect responses
 are no-store. Immutable exact-byte responses and uncached errors retain their
 existing controls. The landing page identifies testing status. No data service
 is deployed and no upload or production promotion is authorized by migration.
+The initial approved hosted batch is limited to P0006 and P0045. Instrument
+scope is frozen at creation; local full-corpus validation is separate and may
+use a temporary workspace without archival. Publishing transfers the exact
+validated snapshot.
 
 Publisher code enforces testing-only manifests and explicit testing destinations.
 Its archive is `$MERMAID/publisher`, a separate local Git repository containing
@@ -47,7 +51,10 @@ flowchart LR
 
 `workers/geocsv/wrangler.example.jsonc` is an undeployed template. Keep actual
 configuration in an approved private location outside the checkout; supply the
-approved private bucket binding. Keep public bucket URLs disabled. The existing
+approved private bucket binding. When the configuration is outside this
+checkout, set its main entry point to an absolute path or a path relative to
+that external configuration file, rather than assuming the current directory.
+Keep public bucket URLs disabled. The existing
 `bathymetrix.com/geocsv/*` route covers both collection namespaces, retaining
 GitHub Pages as origin for the landing page and unrelated routes. There are no
 upload/admin routes. No publishing script is retained by this website.
