@@ -23,24 +23,24 @@ function message(text, status, extra = {}) {
 }
 
 export function releaseKey(pathname) {
-  const match = /^\/geocsv\/releases\/([^/]+)\/([^/]+)$/.exec(pathname);
+  const match = /^\/geocsv\/(testing\/)?releases\/([^/]+)\/([^/]+)$/.exec(pathname);
   if (!match) return null;
   let release;
-  try { release = decodeURIComponent(match[1]); } catch { return null; }
-  const filename = match[2];
-  if (!validRelease(release) || encodeURIComponent(release) !== match[1]) return null;
+  try { release = decodeURIComponent(match[2]); } catch { return null; }
+  const filename = match[3];
+  if (!validRelease(release) || encodeURIComponent(release) !== match[2]) return null;
   if (!component.test(filename)
       || !(filename.endsWith(".geocsv") || ["manifest.json", "validation.json"].includes(filename))) return null;
   // Decoded once above. Never decode the derived R2 key again.
-  return `geocsv/releases/${release}/${filename}`;
+  return `geocsv/${match[1] || ""}releases/${release}/${filename}`;
 }
 
-async function pointer(bucket) {
-  const object = await bucket.get("geocsv/latest.json");
+async function pointer(bucket, root) {
+  const object = await bucket.get(`${root.slice(1)}latest.json`);
   if (!object) return null;
   const text = await object.text();
   const value = JSON.parse(text);
-  if (!validRelease(value.release_id) || typeof value.testing_only !== "boolean"
+  if (!validRelease(value.release_id) || value.testing_only !== (root !== ROOT)
       || value.manifest !== `releases/${encodeURIComponent(value.release_id)}/manifest.json`) {
     throw new Error("Invalid latest pointer");
   }
@@ -51,22 +51,25 @@ export async function handle(request, env, ctx, dependencies = {}) {
   const originFetch = dependencies.originFetch || fetch;
   const url = new URL(request.url);
   if (!url.pathname.startsWith(ROOT)) return originFetch(request);
+  const collectionRoot = url.pathname.startsWith(`${ROOT}testing/`) ? `${ROOT}testing/` : ROOT;
+  const testing = collectionRoot !== ROOT;
+  const testingHeaders = testing ? { "X-MERMAID-Testing": "true" } : {};
   if (!["GET", "HEAD"].includes(request.method)) return message("Method not allowed", 405, { Allow: "GET, HEAD" });
-  if ([ROOT, `${ROOT}index.html`].includes(url.pathname)) return originFetch(request);
+  if ([collectionRoot, `${collectionRoot}index.html`].includes(url.pathname)) return originFetch(request);
   try {
-    if (url.pathname === `${ROOT}latest.json`) {
-      const selected = await pointer(env.GEOCSV);
+    if (url.pathname === `${collectionRoot}latest.json`) {
+      const selected = await pointer(env.GEOCSV, collectionRoot);
       if (!selected) return message("No release published", 404);
       return new Response(request.method === "HEAD" ? null : selected.text, {
-        headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": NO_CACHE },
+        headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": NO_CACHE, ...testingHeaders },
       });
     }
-    const latest = /^\/geocsv\/latest\/([A-Za-z0-9][A-Za-z0-9._-]*\.geocsv)$/.exec(url.pathname);
+    const latest = /^latest\/([A-Za-z0-9][A-Za-z0-9._-]*\.geocsv)$/.exec(url.pathname.slice(collectionRoot.length));
     if (latest) {
-      const selected = await pointer(env.GEOCSV);
+      const selected = await pointer(env.GEOCSV, collectionRoot);
       if (!selected) return message("No release published", 404);
       const filename = latest[1];
-      const prefix = `geocsv/releases/${selected.value.release_id}/`;
+      const prefix = `${collectionRoot.slice(1)}releases/${selected.value.release_id}/`;
       const manifestObject = await env.GEOCSV.get(`${prefix}manifest.json`);
       if (!manifestObject) return message("Selected manifest unavailable", 503);
       const manifest = JSON.parse(await manifestObject.text());
@@ -75,7 +78,7 @@ export async function handle(request, env, ctx, dependencies = {}) {
         return message("Selected manifest inconsistent", 503);
       }
       if (!manifest.files.some(entry => entry.filename === filename)) return message("Instrument not found", 404);
-      const location = new URL(`releases/${encodeURIComponent(selected.value.release_id)}/${filename}`, new URL(ROOT, url));
+      const location = new URL(`releases/${encodeURIComponent(selected.value.release_id)}/${filename}`, new URL(collectionRoot, url));
       return new Response(null, { status: 302, headers: { Location: location.href, "Cache-Control": NO_CACHE } });
     }
     const key = releaseKey(url.pathname);
@@ -98,6 +101,7 @@ export async function handle(request, env, ctx, dependencies = {}) {
     headers.set("ETag", object.httpEtag);
     headers.set("Cache-Control", IMMUTABLE);
     headers.set("X-Content-Type-Options", "nosniff");
+    if (testing) headers.set("X-MERMAID-Testing", "true");
     const response = new Response(request.method === "HEAD" ? null : object.body, { headers, encodeBody: "manual" });
     if (cache && request.method === "GET") ctx.waitUntil(cache.put(cacheKey, response.clone()));
     return response;

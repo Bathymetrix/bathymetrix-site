@@ -1,33 +1,24 @@
 # Bathymetrix
 
-Public website and GeoCSV data publication tooling for Bathymetrix.
+Public website and read-only data hosting for Bathymetrix.
 
 ## Repository
 
 - **Website:** HTML, CSS and JavaScript served by GitHub Pages.
-- **Snapshot workflow:** Python tools in `scripts/geocsv/` create immutable
-  snapshots, validate the full waveform archive and require scientific
-  acceptance before publication.
-- **Download service:** Cloudflare Worker code in `workers/geocsv/` streams
-  releases from R2 and serves the latest-release pointer.
+- **Download service:** Cloudflare Worker in `workers/geocsv/` streams R2 objects,
+  serves collection pointers and handles temporary latest redirects.
 
-Production payloads, validation reports and operational configuration remain
-outside Git. Scientific parsing, association and SAC export use `mermaid-geocsv`.
+[mermaid-publisher](../mermaid-publisher/README.md) owns snapshot creation,
+scientific validation, gating, upload and activation. Its local Git archive is
+separate from this checkout. Scientific APIs remain in `mermaid-geocsv`.
 
 ## GeoCSV status
 
-- All hosted data remain **testing only**, including full-corpus transfer tests.
-  Production promotion and a first release require explicit authorization.
-- Planned collection: `https://bathymetrix.com/geocsv/`.
-- Creation, validation, acceptance and publication tools are implemented locally.
-  Testing-only upload support must be implemented and verified before use.
-- The initial full-archive run passed all 43,365 waveform pairs and the acceptance
-  gate; see [archive findings](docs/GEOCSV_ARCHIVE_FINDINGS.md).
-- Cloudflare DNS onboarding and website proxy/TLS setup are complete; public
-  website HTTPS, redirects and email checks passed. Download-path Python HTTP
-  checks also pass. DNSSEC restoration remains pending; DNSSEC is disabled.
-- Data licensing/citation, R2/Worker deployment and live download verification
-  remain pending. The production download service is not deployed.
+All hosted data remain **testing only**. Isolated `/geocsv/testing/` serving is
+implemented locally; R2/Worker is not deployed. Production `/geocsv/` activation
+and first release remain unauthorized. Licensing/citation, live transfer/download
+checks and DNSSEC restoration remain pending. DNS authority, website proxy/TLS,
+email and scoped automated-client access passed on 2026-10-22.
 
 ## Local website preview
 
@@ -40,6 +31,7 @@ the Worker or publish data.
 
 ## Technical documentation
 
-- [Hosting architecture, workflow, tests and deployment](docs/GEOCSV_HOSTING.md)
-- [Scientific validation and acceptance report](docs/GEOCSV_VALIDATION.md)
-- [Publication and download contract](docs/GEOCSV_CONTRACT.md)
+- [Hosting architecture and deployment](docs/GEOCSV_HOSTING.md)
+- [Publisher workflow](../mermaid-publisher/docs/geocsv/WORKFLOW.md)
+- [Publication/download contract](../mermaid-publisher/docs/geocsv/CONTRACT.md)
+- [Scientific report and historical findings](../mermaid-publisher/docs/geocsv/VALIDATION.md)

@@ -86,18 +86,15 @@ upload authorization still apply. Do not promote data to production, tag a first
 data or software release, or claim production availability without explicit
 authorization. Testing and infrastructure preparation do not grant it.
 
-## Scientific validation authority
+## Publication ownership
 
-For GeoCSV validation and scientific comparison decisions, consult the current
-`~/programs/mermaid-geocsv/AGENTS.md`, `docs/HOSTING.md`, the relevant scientific
-documentation/tutorials, and their verification tests before choosing a rule.
-Use that package's public APIs for parsing, association and SAC projection.
+`mermaid-publisher` owns create, validate, gate, upload, latest activation and
+local archive recording under `scripts/geocsv/`. Its `docs/geocsv/CONTRACT.md`
+is the canonical download agreement. This website owns only its read-only
+Worker, landing page and hosting infrastructure. Do not add publishing scripts,
+scientific comparison code or report schemas here. Hosting must honor the
+existing contract; service changes do not redefine consumer behavior.
 
-When a discrepancy arises, first apply the relevant established package rule
-for that field and context. Do not invent stricter equality requirements or
-wider tolerances, or generalize one field's precision allowance to all fields.
-Distinguish matching thresholds from independent representation comparisons.
-If the package has no applicable rule, report the ambiguity and coordinate an
-explicit decision before accepting production data. Record agreed comparison
-changes in the versioned report contract and keep both hosting plans synchronized.
-
+Keep testing URLs/keys/pointers isolated from production and require matching
+flags. Retain the Worker serving tests here; run publication/scientific tests in
+the publisher. Private configuration and credentials remain outside checkouts.

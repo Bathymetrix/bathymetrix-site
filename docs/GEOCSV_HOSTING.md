@@ -1,213 +1,62 @@
 # GeoCSV hosting implementation and deployment
 
-`bathymetrix-site` owns the complete create → validate → publish workflow,
-including the versioned scientific acceptance report. The public collection is
-planned at `https://bathymetrix.com/geocsv/`. GitHub Pages remains the website
-origin and Squarespace remains registrar. The planned data service uses private
-Cloudflare R2 storage and a read-only Worker route. That infrastructure is not
-activated.
+`bathymetrix-site` owns the read-only download service, landing page and hosting
+infrastructure. Snapshot creation, scientific validation, gating, upload and
+latest activation belong to `mermaid-publisher/scripts/geocsv/`.
 
-`mermaid-geocsv` supplies the public `read`, `associate`, `write_sac` and `fetch`
-APIs and their scientific contracts. It does not supply a publication validator
-or report protocol. Package defects are reported with reproducible evidence and
-fixed in the package; the website does not duplicate matching or projection.
+The authoritative [publication/download contract](../../mermaid-publisher/docs/geocsv/CONTRACT.md),
+[operator workflow](../../mermaid-publisher/docs/geocsv/WORKFLOW.md),
+[scientific report schema](../../mermaid-publisher/docs/geocsv/VALIDATION.md), and
+[historical archive findings](../../mermaid-publisher/docs/geocsv/ARCHIVE_FINDINGS.md)
+are maintained by the publisher. Scientific APIs remain in `mermaid-geocsv`.
+There are no publication commands or duplicate report/gating implementations here.
 
-## Current publication phase: testing only
+## Current status: testing only
 
-All hosted data remain explicitly testing only, including full-corpus transfer
-and validation tests. Manifests/latest pointers must agree on `testing_only: true`;
-public descriptions must identify testing status. Timestamped snapshots support
-reproducibility without constituting a first scientific release. Production
-promotion, release tags and production-availability claims require explicit
-authorization. Scientific and licensing/citation gates remain in force.
+All hosted data remain testing only. The local Worker implements isolated
+`/geocsv/testing/` URLs and `geocsv/testing/` R2 keys, separate from future
+production `/geocsv/` paths and keys. Each collection has its own latest pointer.
+Testing pointers require `testing_only: true`; production pointers require false.
+Testing successes carry `X-MERMAID-Testing: true` and pointer/redirect responses
+are no-store. Immutable exact-byte responses and uncached errors retain their
+existing controls. The landing page identifies testing status. No data service
+is deployed and no upload or production promotion is authorized by migration.
 
-Current creator/verifier/publisher code writes or requires `testing_only: false`.
-Testing-only labeling and object/pointer isolation must be implemented and
-verified before uploads. Do not relabel frozen candidates or reuse their reports.
-See the [publication contract](GEOCSV_CONTRACT.md#current-publication-phase-testing-only).
+Publisher code enforces testing-only manifests and explicit testing destinations.
+Its archive is `$MERMAID/publisher`, a separate local Git repository containing
+GeoCSV products and evidence, not original waveform archives. Website private
+configuration and credentials remain outside both repositories.
 
-## Implementation status
+Cloudflare authority, website proxy/TLS, post-proxy email and scoped Python-client
+access were verified on 2026-10-22. DNSSEC remains disabled. Licensing/citation,
+R2/Worker deployment, live SDK behavior, exact HTTPS downloads and DNSSEC
+restoration remain pending. Historical schema-2 archive acceptance does not
+accept a migrated schema-3 candidate.
 
-| Component | State |
-| --- | --- |
-| `scripts/geocsv/create_snapshot.py` | Verbatim staging, explicit inventory, shared timestamp, deterministic manifest |
-| `scripts/geocsv/validate_snapshot.py` | Full original MiniSEED/paired SAC inventory and public-API scientific comparisons |
-| `scripts/geocsv/acceptance.py` | Version 2 report protocol, evidence checks and source/candidate fingerprint rechecks |
-| `scripts/geocsv/publish_snapshot.py` | Production-oriented acceptance/transfer implementation; testing-only upload safeguards pending |
-| `workers/geocsv/src/index.js` | Streaming, one URL decoding step, no-cache latest, immutable release caching; not deployed |
-| `geocsv/index.html` | Prepared landing page; production downloads are not advertised as available |
-| Cloudflare authoritative DNS | Onboarded; imported records compared with Squarespace |
-| Website proxy/TLS | Universal edge certificate Active; Full (strict) configured; apex/www proxied and public HTTPS checks passed |
-| Email and DNSSEC | Post-proxy send/receive checks passed; DNSSEC disabled |
-| Automated-client access | Scoped BIC exception deployed; normal Python GET/HEAD and fetch-client manifest access verified; complete downloads pending |
-| Licensing/citation, R2/Worker deployment and live downloads | Pending |
-
-The 2026-10-22 complete local archive run passed all 43,365 original waveform
-pairs under report version 2, and the publisher's acceptance gate accepted the
-report after input/code rechecks. See [archive findings](GEOCSV_ARCHIVE_FINDINGS.md).
-Future candidates require their own complete run and matching evidence. Reports
-and payloads remain outside Git. No publication, DNS activation, commit, tag or
-software release is implied by a local validation pass.
-
-## Workflow
-
-Paths are relative to their named repository. `{work}` is outside Git and the
-protected processed tree. Every protected input is read-only. The diagram retains
-the reviewed publication sequence; its production object keys are a future
-reference. Testing-mode labeling and isolation must be implemented before uploads.
+## Read-only serving workflow
 
 ```mermaid
-flowchart TB
-    subgraph upstream["automaid — existing writers"]
-        run["scripts/main.py: one creation_datestr"]
-        writer["scripts/geocsv.py: #created and GeoCSV"]
-        waves["scripts/events.py: original MiniSEED and paired SAC"]
-        run --> writer
-        run --> waves
-    end
-    source["$MERMAID/processed/{serial}/geo_DET_REQ.csv"]
-    originals["Original MiniSEED and independent SAC references"]
-    writer --> source
-    waves --> originals
-    subgraph site["bathymetrix-site — complete local workflow"]
-        phase["Current hosted-data phase: testing only<br/>No production promotion without explicit authorization"]
-        inventory["Explicit reviewed serial-to-ID inventory"]
-        create["scripts/geocsv/create_snapshot.py"]
-        validate["scripts/geocsv/validate_snapshot.py"]
-        reportcheck["scripts/geocsv/acceptance.py: version 2 evidence checks"]
-        publish["scripts/geocsv/publish_snapshot.py"]
-        worker["workers/geocsv/src/index.js — not deployed"]
-        inventory --> create
-        validate --> reportcheck
-        reportcheck --> publish
-        phase -. constrains .-> publish
-    end
-    subgraph package["mermaid-geocsv — public APIs and scientific behavior"]
-        api["read → associate (strict originals) → write_sac"]
-        fetch["fetch with explicit literal release ID"]
-    end
-    source -->|verbatim| create
-    candidate["{work}/snapshots/{encoded timestamp}/ files + frozen manifest"]
-    create --> candidate
-    candidate --> validate
-    originals -->|read only| validate
-    api -. called by validator .-> validate
-    report["{work}/validation/{encoded timestamp}/validation.json"]
-    validate --> report
-    report --> reportcheck
-    candidate --> reportcheck
-    originals -->|reinventory and hash| reportcheck
-    accepted{"Complete coverage, passing checks, exact bound bytes?"}
-    publish --> accepted
-    stop["Stop and report; latest unchanged"]
-    accepted -->|no| stop
-    r2["R2 literal timestamp keys: payloads → manifest → validation report"]
-    recheck["Recheck accepted candidate and report bytes"]
-    accepted -->|yes| recheck
-    recheck -->|changed| stop
-    recheck -->|unchanged| r2
-    verify["Verify public identity-encoded HTTPS bytes + pinned fetch"]
-    fetch -. client integration .-> verify
-    r2 --> verify
-    verify -->|failure| stop
-    latest["Conditionally update latest.json last"]
-    verify -->|success| latest
-    r2 -. immutable streaming .-> worker
-    latest -. no-store pointer and temporary redirects .-> worker
+flowchart LR
+    publisher["mermaid-publisher: gate, upload, check, activate latest"] --> r2["Private R2: isolated testing objects"]
+    r2 --> worker["workers/geocsv/src/index.js: GET/HEAD only"]
+    worker --> client["mermaid-geocsv.fetch: pin immutable snapshot"]
+    pages["GitHub Pages landing page"] --> client
 ```
-
-## Create and validate a frozen candidate
-
-Staging remains standard-library-only. Validation and publication acceptance
-require Python 3.11+ and `mermaid-geocsv` with its ObsPy extra. Use the repository's
-`.venv` when present. No environment is created or modified automatically.
-
-Use a reviewed CSV outside Git with exact columns `instrument_serial,instrument_id`.
-IDs are explicit; serial suffixes are not treated as authoritative. The creator
-checks Station records, complete source inventory, duplicates and shared literal
-`#created`. Recordless sources are never staged or published. Their explicit IDs,
-source paths, timestamps, sizes, hashes and exclusion reasons are retained in the
-local-only `{work}/staging/{release_component}/inventory.json` sidecar. The sidecar
-accounts for every source instrument and is not uploaded. Validation/acceptance
-reject an excluded directory containing original waveform inputs, so exclusions
-cannot conceal unexamined originals. Supply `--previous-manifest` after the first publication to reject
-unexpectedly missing instruments. Pause upstream processing before staging.
-
-```bash
-python3 scripts/geocsv/create_snapshot.py \
-  --source-root "$MERMAID/processed" \
-  --workspace /path/to/publication-work \
-  --inventory /path/to/publication-work/instruments.csv
-
-python3 scripts/geocsv/validate_snapshot.py \
-  --candidate /path/to/publication-work/snapshots/2026-10-21T22%3A48%3A33.277Z \
-  --source-root "$MERMAID/processed" \
-  --report /path/to/publication-work/validation/2026-10-21T22%3A48%3A33.277Z/validation.json
-```
-
-Reports use exclusive creation. A rerun needs a new report path; never change the
-frozen manifest to describe report or publication time. Temporary SAC exports
-are outside Git and deleted after comparison. Validation processes one instrument
-at a time and bounded batches (default 128 original traces), without merging,
-calibrating, repairing samples or using the containing-anchor fallback.
-
-[The report protocol and scientific checks](GEOCSV_VALIDATION.md) define scope,
-units, precision and acceptance. `.mhpsd` spectra are outside scope and are not
-counted. Missing pairs, unsupported waveform formats/products, unreadable inputs,
-and unexamined comparisons remain explicit failures. The fixture checker is not
-an alternative to this full-archive run.
-
-## Acceptance and publication
-
-The report is bound to literal release ID, exact manifest SHA-256, every staged
-file, all original waveform input fingerprints/pairs, scientific results,
-measured maxima, limits, code hashes and dependency versions. Acceptance rechecks
-candidate bytes and the complete source inventory, reconstructs pair accounting,
-and requires every check to pass. An arbitrary success flag cannot authorize
-publication. Code/dependency changes require a new validation run.
-
-```bash
-python3 scripts/geocsv/publish_snapshot.py \
-  --candidate /path/to/publication-work/snapshots/2026-10-21T22%3A48%3A33.277Z \
-  --report /path/to/publication-work/validation/2026-10-21T22%3A48%3A33.277Z/validation.json \
-  --source-root "$MERMAID/processed" \
-  --plan
-```
-
-`--plan` checks local candidate structure and displays a read-only plan. It does
-not authorize or perform uploads. An actual publication, only when explicitly
-instructed, also needs the approved R2 S3 endpoint and bucket. The optional R2
-transport uses `boto3`; credentials come from its normal provider outside Git.
-Never put credentials in command arguments, tracked files or logs.
-
-Publication serializes through one external workspace lock and uses conditional
-R2 writes. It uploads payloads before the manifest and separate `validation.json`,
-verifies public HTTPS identity bytes/checksums and explicitly pinned public
-`geocsv.fetch`, then compare-and-swaps latest last. Candidate/report changes after
-acceptance or during transfer raise. Identical immutable retries reuse objects;
-conflicting bytes or inventories raise. The report binds the manifest; the
-manifest never depends on a report hash.
-
-Use one publication workspace for all operators. A crash leaves a visible lock;
-inspect it and the remote committed state before removing it or retrying an
-ambiguous write. Rollback selects a retained, accepted immutable release through
-the same checks; it never deletes or rewrites releases. The current remote
-inventory still protects against unexpectedly missing instruments.
 
 ## Worker deployment preparation
 
-`workers/geocsv/wrangler.example.jsonc` is an undeployed template with an unresolved
-bucket name. Keep actual deployment configuration in an approved private location outside
-the checkout, including any local Wrangler configuration. Use the read-only binding and keep public bucket URLs disabled.
-The route is `bathymetrix.com/geocsv/*`, retaining the GitHub Pages origin and
-landing page. There are no public upload/admin routes.
+`workers/geocsv/wrangler.example.jsonc` is an undeployed template. Keep actual
+configuration in an approved private location outside the checkout; supply the
+approved private bucket binding. Keep public bucket URLs disabled. The existing
+`bathymetrix.com/geocsv/*` route covers both collection namespaces, retaining
+GitHub Pages as origin for the landing page and unrelated routes. There are no
+upload/admin routes. No publishing script is retained by this website.
 
-Object keys use literal timestamp colons; URLs encode them. The Worker decodes
-once, streams uncompressed bytes, sets appropriate content metadata, bypasses
-caches for latest/redirects, caches successful immutable objects, and does not
-cache errors or misses. Deployment must preserve those controls. Publication
-verification requests force R2 reads with `Cache-Control: no-cache` and request
-`Accept-Encoding: identity`. Do not override this with a broad zone cache rule.
+The Worker decodes timestamp URL components exactly once into literal storage
+keys, streams uncompressed objects, and bypasses caches for latest/redirects.
+It caches only successful immutable objects and honors no-cache verification.
+Deployment must preserve exact bytes, identity encoding, cache isolation and
+uncached misses. No generic zone cache rule should override these controls.
 
 ## DNS onboarding and remaining activation steps
 
@@ -309,49 +158,25 @@ Official references checked for this implementation:
 - [R2 Worker streaming API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/)
 - [Atomic conditional S3 writes](https://developers.cloudflare.com/r2/api/s3/extensions/)
 
-## Verification and launch checklist
+## Verification and remaining hosting work
 
 ```bash
-python3 -B -m unittest discover -s tests -v
 cd workers/geocsv
 node --test test/worker.test.js
 ```
 
-The validation tests require the ObsPy-enabled environment. Offline tests cover
-public-API round trips, exact candidate/source binding, complete pair accounting,
-missing pairs, unsupported/unexamined inputs, scientific mismatches, immutable
-retry/conflict behavior, publication ordering and streaming/cache controls.
-These tests do not establish live infrastructure behavior or archive acceptance.
+Worker tests cover streaming, encoding, cache behavior, isolated testing
+pointers/objects/redirects and flag rejection. Scientific and publisher tests
+run in `mermaid-publisher`; none are duplicated here.
 
-- [x] Record the current testing-only phase for all hosted data, including
-  complete-corpus tests; keep production promotion and first release unauthorized.
-- [ ] Implement and verify testing-only flags, object/pointer isolation and public
-  labeling before hosted uploads; preserve the scientific gate and latest-last order.
-- [x] Implement website-owned create, validate, report acceptance and publish tools.
-- [x] Preserve and test snapshot, Worker and transfer behavior.
-- [x] Define the versioned report and focused acceptance/rejection tests.
-- [x] Complete the report-version-2 archive run and acceptance verification:
-  43,365 pairs passed; no failed, missing, unsupported or unexamined pairs.
-- [x] Account for 112 source GeoCSV files: stage 103 nonempty files; record nine
-  recordless exclusions in the local-only sidecar. Spectra are not counted.
-- [ ] Set data redistribution license, attribution, citation/DOI and retention policy.
-- [x] Complete Cloudflare DNS onboarding and compare every imported record
-  with Squarespace; retain registrar and website origin.
-- [x] Verify public Cloudflare authority and apex/www HTTPS and redirects.
-- [x] Confirm an Active Universal edge certificate covering apex/www.
-- [x] Configure Full (strict), proxy only website records, and verify public
-  edge HTTPS, redirects and main-page responses.
-- [x] Verify fresh email sending and receiving after proxy activation.
-- [x] Identify Browser Integrity Check as the feature blocking default Python
-  requests through Cloudflare Security Events.
-- [x] Deploy the scoped download-path BIC exception; verify ordinary urllib
-  GET/HEAD and unmodified fetch access to the expected unpublished manifest 404.
-- [ ] Verify full unmodified fetch downloads and publisher HTTP checks against
-  hosted test objects after R2/Worker deployment.
-- [ ] Restore and verify DNSSEC after hosting verification; it is currently disabled.
-- [ ] Deploy and verify R2/Worker, cache controls, origin TLS and public exact bytes.
-- [ ] Test live pinned/latest, one/all instruments, memory/disk and scientific use.
+- [x] Separate read-only hosting from the publisher workflow and contract.
+- [x] Implement local testing namespace isolation and explicit response labeling.
+- [x] Complete DNS authority, proxy/TLS, email and scoped Python-client checks.
+- [ ] Set licensing/citation before data uploads.
+- [ ] Deploy approved private R2/Worker configuration and verify SDK transport.
+- [ ] Verify exact deployed bytes, caches, misses, testing flags and pointer isolation.
+- [ ] Verify pinned/latest fetch, one/all instruments, memory/disk and scientific use.
+- [ ] Restore and verify DNSSEC after hosting verification.
 
-Keep the package's `docs/HOSTING.md` diagram/checklist synchronized with this
-workflow. Its API/scientific contracts remain package-owned; validator/report
-implementation and complete archive acceptance remain website-owned.
+All deployment and remote publication require explicit authorization. Production
+promotion and first formal release remain separately unauthorized.

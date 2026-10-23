@@ -121,3 +121,31 @@ test("landing and unrelated routes retain GitHub Pages origin", async () => {
   }
   assert.equal(state.reads.length, 0);
 });
+
+
+test("testing collection uses isolated objects, pointer and redirects", async () => {
+  const state = setup();
+  const testPrefix = `geocsv/testing/releases/${release}/`;
+  state.data.set("geocsv/testing/latest.json", JSON.stringify({ release_id: release, testing_only: true, manifest: `releases/${encoded}/manifest.json` }));
+  state.data.set(testPrefix + "manifest.json", JSON.stringify({ release_id: release, testing_only: true, files: [{ filename: "P0006.geocsv" }] }));
+  state.data.set(testPrefix + "P0006.geocsv", "testing payload");
+  assert.equal(releaseKey(`/geocsv/testing/releases/${encoded}/P0006.geocsv`), testPrefix + "P0006.geocsv");
+  const latest = await state.request("/geocsv/testing/latest.json");
+  assert.equal((await latest.json()).testing_only, true);
+  assert.equal(latest.headers.get("X-MERMAID-Testing"), "true");
+  const payloadResponse = await state.request(`/geocsv/testing/releases/${encoded}/P0006.geocsv`);
+  assert.equal(await payloadResponse.text(), "testing payload");
+  assert.equal(payloadResponse.headers.get("X-MERMAID-Testing"), "true");
+  const redirected = await state.request("/geocsv/testing/latest/P0006.geocsv");
+  assert.equal(redirected.headers.get("Location"), `https://bathymetrix.com/geocsv/testing/releases/${encoded}/P0006.geocsv`);
+  assert.equal((await (await state.request("/geocsv/latest.json")).json()).testing_only, false);
+  assert.equal(await (await state.request(`/geocsv/releases/${encoded}/P0006.geocsv`)).text(), payload);
+});
+
+test("testing pointer rejects production flags without consulting production objects", async () => {
+  const state = setup();
+  assert.equal((await state.request("/geocsv/testing/latest.json")).status, 404);
+  state.data.set("geocsv/testing/latest.json", state.data.get("geocsv/latest.json"));
+  assert.equal((await state.request("/geocsv/testing/latest.json")).status, 503);
+  assert.equal((await state.request("/geocsv/testing/latest/P0006.geocsv")).status, 503);
+});
