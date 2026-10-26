@@ -124,6 +124,8 @@
             path.style.strokeDashoffset = String(lengths[index]);
           });
           gradient.setAttribute('gradientTransform', 'translate(-1700 0)');
+          // Let the hidden reset reach a rendered frame before transitions restart.
+          await frame();
           await frame();
           await drawAll();
           await pause(250);
