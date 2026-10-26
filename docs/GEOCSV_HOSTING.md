@@ -53,6 +53,12 @@ the current acceptance gates passed after the local testing-layout change. The
 full check remains temporary; only the selected candidate is in the publication
 archive. See the publisher’s [fresh findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md).
 
+A subsequent local revalidation passed all 3,292 P0006/P0045 pairs and the
+acceptance gate with the publisher's frozen consumer `33ed5ff`. Its new report
+remains local; the already hosted immutable report records consumer `c1eb805`
+and was not replaced. No hosting deployment or pointer change was needed.
+See the publisher's [local revalidation findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md#local-consumer-baseline-revalidation--2026-10-26).
+
 ## Read-only serving workflow
 
 ```mermaid
