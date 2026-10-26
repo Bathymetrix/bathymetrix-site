@@ -21,7 +21,8 @@ fetch/read/associate/write_sac workflow passed; all 3,292 original waveform pair
 passed again using hosted downloads. The testing artifacts may be retired
 through authorized cleanup. Production activation and a first formal release
 remain unauthorized. The landing page publishes the scope, MH network citation
-and retirement notice. DNSSEC restoration remains pending.
+and retirement notice. DNSSEC was restored on 2026-10-26; independent validation,
+HTTPS/download checks and email sending/receiving passed.
 
 ## Local website preview
 

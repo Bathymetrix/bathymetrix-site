@@ -41,11 +41,12 @@ different bytes. Production retention remains indefinite. Website private
 configuration and credentials remain outside both repositories.
 
 Cloudflare authority, website proxy/TLS, post-proxy email and scoped Python-client
-access were verified on 2026-10-22. DNSSEC remains disabled. R2/Worker deployment
+access were verified on 2026-10-22. DNSSEC was restored and independently
+verified on 2026-10-26. R2/Worker deployment
 and read-only SDK/HTTPS checks passed on 2026-10-23. The authorized two-instrument
 publication subsequently passed live conditional-write rejection, exact-byte
 HTTPS, cache, fetch and scientific checks on 2026-10-26. Full-corpus licensing
-and DNSSEC restoration remain pending. Historical schema-2 archive acceptance
+remains pending. Historical schema-2 archive acceptance
 does not accept a migrated schema-3 candidate. Fresh full-corpus and separate
 P0006/P0045 schema-3 runs subsequently passed 43,365 and 3,292 original waveform pairs, respectively, and
 the current acceptance gates passed after the local testing-layout change. The
@@ -92,8 +93,9 @@ evidence are retained privately outside the checkouts.
 Cloudflare authoritative DNS onboarding and website proxy activation are
 complete as of 2026-10-22. All imported records were compared with Squarespace
 and confirmed to match. Full (strict) is configured and only apex/www website
-records are proxied; email and other service records remain unchanged. DNSSEC is
-disabled. Squarespace remains registrar and GitHub Pages remains the website origin.
+records are proxied; email and other service records remain unchanged. DNSSEC
+was restored and verified on 2026-10-26. Squarespace remains registrar and GitHub
+Pages remains the website origin.
 
 Public checks confirmed Cloudflare authority through two independent recursive
 resolvers. Before proxy activation, origin-path HTTPS checks passed. After
@@ -123,8 +125,13 @@ initial-artifact retirement notice; the live page was verified on 2026-10-26.
 The initial testing upload, acceptance rechecks, publication transport and
 complete hosted workflow verification are complete. See the publisher's
 [publication findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md#initial-hosted-testing-publication--2026-10-26).
-DNSSEC restoration requires separate coordination and authorization. Production
-data activation separately requires current scientific acceptance and explicit
+DNSSEC restoration was completed through separately authorized Cloudflare
+signing and publication of the matching DS record through Squarespace on
+2026-10-26. Google and Cloudflare validating resolvers authenticated the DS,
+DNSKEY, website-address and mail-routing answers. Apex/www HTTPS and redirects,
+testing metadata, and exact size/SHA-256 checks of both hosted GeoCSV payloads
+passed afterward. Email sending and receiving also passed. Production data
+activation separately requires current scientific acceptance and explicit
 authorization.
 Each infrastructure change requires explicit coordination.
 
@@ -219,7 +226,8 @@ run in `mermaid-publisher`; none are duplicated here.
 - [x] Verify exact deployed bytes, cache hits, misses, testing flags and pointer isolation.
 - [x] Verify pinned/latest fetch, one/all instruments, memory/disk, local reuse
   and complete scientific use: all 3,292 original pairs passed with hosted bytes.
-- [ ] Restore and verify DNSSEC after hosting verification.
+- [x] Restore and independently verify DNSSEC, HTTPS/downloads and email
+  sending/receiving after hosting verification (2026-10-26).
 
 All deployment and remote publication require explicit authorization. Production
 promotion and first formal release remain separately unauthorized.
