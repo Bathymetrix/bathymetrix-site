@@ -116,19 +116,19 @@ fetch-client and publisher HTTP verification against a separate illustrative
 release under the same base after R2/Worker test hosting is prepared. This does
 not authorize production data publication.
 
-The remaining sequence is: publish the prepared testing scope, citation and
-retirement notice through the normal website workflow; obtain explicit testing
-upload authorization; recheck the exact accepted candidate; verify complete
-downloads and publication transport; and restore DNSSEC. Production data
-activation separately requires current scientific acceptance and explicit
-authorization.
+The landing page now publishes the testing scope, MH network citation and
+initial-artifact retirement notice; the live page was verified on 2026-10-26.
+The remaining sequence is: obtain explicit testing upload authorization; recheck
+the exact accepted candidate; verify complete downloads and publication
+transport; and restore DNSSEC. Production data activation separately requires
+current scientific acceptance and explicit authorization.
 Each infrastructure change requires explicit coordination.
 
 Keep actual zone exports, inventories, account context and deployment
 configuration outside this repository in an approved private location; use
 placeholders in repository procedures. The procedure below retains the completed
 onboarding, website proxy and scoped client-access steps for reference.
-R2/Worker deployment in step 7 is complete; landing-page publication and
+R2/Worker deployment and landing-page publication in step 7 are complete. The
 end-to-end download checks remain pending.
 
 1. **Inventory and baseline.** Export the complete existing zone from Squarespace.
@@ -204,8 +204,8 @@ run in `mermaid-publisher`; none are duplicated here.
 - [x] Complete DNS authority, proxy/TLS, email and scoped Python-client checks.
 - [x] Limit hosted testing to P0006/P0045 and prepare the MH network citation.
 - [x] Obtain fresh schema-3 acceptance for the selected candidate.
-- [ ] Publish and verify the testing scope, citation and retirement notice before
-  data uploads. Full-corpus licensing remains deferred.
+- [x] Publish and verify the testing scope, citation and retirement notice before
+  data uploads (2026-10-26). Full-corpus licensing remains deferred.
 - [x] Deploy approved private R2/Worker configuration and verify read-only SDK
   access. Conditional write transport remains unverified.
 - [x] Verify unchanged landing-page bytes, GET/HEAD misses, no-store errors,
