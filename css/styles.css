@@ -90,6 +90,7 @@ ul { margin: 0; padding-left: 1.2rem; }
   background: var(--accent);
   color: #fff;
   font-weight: 700;
+  text-transform: none;
   letter-spacing: 0.04em;
 }
 .site-nav a.nav-cta:hover,
