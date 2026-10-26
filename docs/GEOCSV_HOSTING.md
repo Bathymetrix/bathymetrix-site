@@ -59,6 +59,24 @@ remains local; the already hosted immutable report records consumer `c1eb805`
 and was not replaced. No hosting deployment or pointer change was needed.
 See the publisher's [local revalidation findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md#local-consumer-baseline-revalidation--2026-10-26).
 
+## SAC consumer refactor and verification
+
+Consumer 0.25.0 replaces its public `write_sac` with
+`associate(..., create_sac_header=True)`. The consumer creates ObsPy-default
+SAC headers plus stla/stlo/stel/stdp; users write with ObsPy Trace/Stream.write.
+The publisher owns final-waveform consistency, float32 storage and output
+verification, with an explicit [migration inventory](../../mermaid-publisher/docs/geocsv/SAC_VERIFICATION.md).
+Its unchanged 0.24.0 baseline remains supported alongside the current consumer.
+
+This local source/documentation refactor changes no manifest format, fetch
+protocol, URLs, object bytes, caches, testing flags or Worker behavior. Existing
+Worker serving tests remain the hosting checks; scientific verification runs
+in the publisher. Historical 43,365/3,292-pair findings retain their original
+software provenance. Fresh acceptance is required before a future publication.
+All 11 local Worker tests pass with the bundled Node runtime. The updated
+landing-page wording is local until separately deployed; no live hosting
+verification or deployment is claimed for this refactor.
+
 ## Read-only serving workflow
 
 ```mermaid
