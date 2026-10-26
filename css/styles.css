@@ -672,10 +672,12 @@ textarea:focus {
     max-width: min(240px, 68vw);
   }
   .hero {
-    padding: 4.4rem 0 3.2rem;
+    padding: 4.4rem 0 calc(1rem + (100vw - 2rem) * 520 / 2185);
   }
   .waveform-reveal {
     top: calc(100% + 1rem);
+    /* The visible strokes span 2185 units of the SVG's 2400-unit viewBox. */
+    width: calc(100% * 2400 / 2185);
     transform: translateX(-50%);
   }
   .page-hero {
