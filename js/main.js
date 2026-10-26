@@ -16,6 +16,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const waveform = document.querySelector('[data-waveform-animation]');
+  if (waveform) {
+    const placeholder = waveform.previousElementSibling;
+    const startAnimation = () => {
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        waveform.addEventListener('load', () => {
+          placeholder.hidden = true;
+        }, { once: true });
+        waveform.src = waveform.dataset.animationSrc;
+      }
+    };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          startAnimation();
+          observer.disconnect();
+        }
+      }, { threshold: 0.2 });
+      observer.observe(waveform);
+    } else {
+      startAnimation();
+    }
+  }
+
   const form = document.querySelector('[data-mailto-form]');
   if (form) {
     form.addEventListener('submit', (event) => {
