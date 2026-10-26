@@ -84,6 +84,19 @@ ul { margin: 0; padding-left: 1.2rem; }
 .site-nav a[aria-current="page"] {
   color: var(--text);
 }
+.site-nav a.nav-cta {
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.site-nav a.nav-cta:hover,
+.site-nav a.nav-cta:focus-visible {
+  background: #0b3b65;
+  color: #fff;
+}
 .nav-toggle {
   display: none;
   border: 1px solid var(--line);
@@ -732,6 +745,11 @@ textarea:focus {
     display: block;
     padding: 0.8rem 1rem;
     width: 100%;
+  }
+  .site-nav a.nav-cta {
+    width: calc(100% - 2rem);
+    margin: 0.35rem 1rem;
+    text-align: center;
   }
   .footer-links {
     gap: 0.8rem 1rem;
