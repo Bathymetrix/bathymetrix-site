@@ -14,13 +14,14 @@ separate from this checkout. Scientific APIs remain in `mermaid-geocsv`.
 
 ## GeoCSV status
 
-All hosted data remain **testing only**. The isolated `/geocsv/testing/` Worker
-was deployed on 2026-10-23; read-only SDK/HTTPS checks passed and no data have
-been uploaded. Initial testing is limited to P0006/P0045 and its artifacts may
-be retired through authorized cleanup. Production `/geocsv/` activation and
-first release remain unauthorized. The testing scope, MH network citation and
-initial-artifact retirement notice are published on the landing page. Live transfer/download checks and DNSSEC restoration remain pending. DNS authority,
-website proxy/TLS, email and scoped automated-client access passed on 2026-10-22.
+All hosted data remain **testing only**. The initial P0006/P0045 snapshot was
+published on 2026-10-26 through the isolated `/geocsv/testing/` service. Exact
+HTTPS bytes, cache behavior, conditional-write rejection, and the complete
+fetch/read/associate/write_sac workflow passed; all 3,292 original waveform pairs
+passed again using hosted downloads. The testing artifacts may be retired
+through authorized cleanup. Production activation and a first formal release
+remain unauthorized. The landing page publishes the scope, MH network citation
+and retirement notice. DNSSEC restoration remains pending.
 
 ## Local website preview
 

@@ -20,8 +20,10 @@ Testing pointers require `testing_only: true`; production pointers require false
 Testing successes carry `X-MERMAID-Testing: true` and pointer/redirect responses
 are no-store. Immutable exact-byte responses and uncached errors retain their
 existing controls. The landing page identifies testing status. The read-only
-Worker was deployed on 2026-10-23; the testing bucket remains empty. No data upload or production
-promotion is authorized by deployment.
+Worker was deployed on 2026-10-23. The explicitly authorized P0006/P0045
+snapshot `2026-10-21T22:48:33.277Z` was published on 2026-10-26; the testing
+pointer selects it. The production pointer remains absent. Deployment alone
+does not authorize additional uploads or production promotion.
 The initial approved hosted batch is limited to P0006 and P0045. Instrument
 scope is frozen at creation; local full-corpus validation is separate and may
 use a temporary workspace without archival. Publishing transfers the exact
@@ -39,12 +41,13 @@ different bytes. Production retention remains indefinite. Website private
 configuration and credentials remain outside both repositories.
 
 Cloudflare authority, website proxy/TLS, post-proxy email and scoped Python-client
-access were verified on 2026-10-22. DNSSEC remains disabled. Licensing/citation,
-conditional writes, exact HTTPS downloads and DNSSEC restoration remain
-pending. R2/Worker deployment and read-only SDK/HTTPS checks passed on
-2026-10-23. Historical schema-2 archive acceptance does not accept a migrated
-schema-3 candidate. Fresh full-corpus and separate P0006/P0045 schema-3 runs
-subsequently passed 43,365 and 3,292 original waveform pairs, respectively, and
+access were verified on 2026-10-22. DNSSEC remains disabled. R2/Worker deployment
+and read-only SDK/HTTPS checks passed on 2026-10-23. The authorized two-instrument
+publication subsequently passed live conditional-write rejection, exact-byte
+HTTPS, cache, fetch and scientific checks on 2026-10-26. Full-corpus licensing
+and DNSSEC restoration remain pending. Historical schema-2 archive acceptance
+does not accept a migrated schema-3 candidate. Fresh full-corpus and separate
+P0006/P0045 schema-3 runs subsequently passed 43,365 and 3,292 original waveform pairs, respectively, and
 the current acceptance gates passed after the local testing-layout change. The
 full check remains temporary; only the selected candidate is in the publication
 archive. See the publisher’s [fresh findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md).
@@ -111,25 +114,26 @@ Post-deployment checks on 2026-10-22 passed with the normal Python user agent an
 identity encoding: GET and HEAD returned 200 for `/geocsv/` and 404 for the
 unpublished `/geocsv/latest.json`, on both apex and www. The unmodified
 `geocsv.fetch` client reached that expected manifest 404 rather than a security
-403. This verifies edge access, not a complete download. Complete unmodified
-fetch-client and publisher HTTP verification against a separate illustrative
-release under the same base after R2/Worker test hosting is prepared. This does
-not authorize production data publication.
+403. These early checks verified edge access. Complete unmodified client and
+publisher verification subsequently passed against the authorized P0006/P0045
+testing snapshot on 2026-10-26; production data publication remains unauthorized.
 
 The landing page now publishes the testing scope, MH network citation and
 initial-artifact retirement notice; the live page was verified on 2026-10-26.
-The remaining sequence is: obtain explicit testing upload authorization; recheck
-the exact accepted candidate; verify complete downloads and publication
-transport; and restore DNSSEC. Production data activation separately requires
-current scientific acceptance and explicit authorization.
+The initial testing upload, acceptance rechecks, publication transport and
+complete hosted workflow verification are complete. See the publisher's
+[publication findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md#initial-hosted-testing-publication--2026-10-26).
+DNSSEC restoration requires separate coordination and authorization. Production
+data activation separately requires current scientific acceptance and explicit
+authorization.
 Each infrastructure change requires explicit coordination.
 
 Keep actual zone exports, inventories, account context and deployment
 configuration outside this repository in an approved private location; use
 placeholders in repository procedures. The procedure below retains the completed
 onboarding, website proxy and scoped client-access steps for reference.
-R2/Worker deployment and landing-page publication in step 7 are complete. The
-end-to-end download checks remain pending.
+R2/Worker deployment, landing-page publication and end-to-end testing downloads
+in step 7 are complete.
 
 1. **Inventory and baseline.** Export the complete existing zone from Squarespace.
    Save apex/www website records, MX priorities, SPF, DKIM selectors, DMARC,
@@ -206,13 +210,15 @@ run in `mermaid-publisher`; none are duplicated here.
 - [x] Obtain fresh schema-3 acceptance for the selected candidate.
 - [x] Publish and verify the testing scope, citation and retirement notice before
   data uploads (2026-10-26). Full-corpus licensing remains deferred.
-- [x] Deploy approved private R2/Worker configuration and verify read-only SDK
-  access. Conditional write transport remains unverified.
-- [x] Verify unchanged landing-page bytes, GET/HEAD misses, no-store errors,
-  identity encoding on misses and www-to-apex routing. The bucket is empty and
-  testing/production pointers are absent.
-- [ ] Verify exact deployed bytes, caches, misses, testing flags and pointer isolation.
-- [ ] Verify pinned/latest fetch, one/all instruments, memory/disk and scientific use.
+- [x] Deploy approved private R2/Worker configuration and verify SDK access,
+  conditional immutable-create rejection and stale latest-write rejection.
+- [x] Verify landing-page routing, GET/HEAD, no-store errors, identity encoding
+  and www-to-apex routing before the initial upload.
+- [x] Publish exactly the accepted P0006/P0045 snapshot and record its receipt
+  and scoped local archive commit (2026-10-26).
+- [x] Verify exact deployed bytes, cache hits, misses, testing flags and pointer isolation.
+- [x] Verify pinned/latest fetch, one/all instruments, memory/disk, local reuse
+  and complete scientific use: all 3,292 original pairs passed with hosted bytes.
 - [ ] Restore and verify DNSSEC after hosting verification.
 
 All deployment and remote publication require explicit authorization. Production
