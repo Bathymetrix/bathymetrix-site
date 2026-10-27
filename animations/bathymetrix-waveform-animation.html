@@ -84,7 +84,7 @@
         await Promise.all(lines.map((path, index) => new Promise((resolve) => {
           window.setTimeout(() => {
             path.style.strokeDashoffset = '0';
-            window.setTimeout(resolve, drawMs + 50);
+            window.setTimeout(resolve, drawMs);
           }, index * buildStaggerMs);
         })));
       }
@@ -112,7 +112,7 @@
           const index = lines.indexOf(path);
           window.setTimeout(() => {
             path.style.strokeDashoffset = String(-lengths[index]);
-            window.setTimeout(resolve, eraseMs + 50);
+            window.setTimeout(resolve, eraseMs);
           }, reverseIndex * eraseStaggerMs);
         })));
       }
@@ -128,9 +128,7 @@
           await frame();
           await frame();
           await drawAll();
-          await pause(250);
           await shimmerOnce();
-          await pause(700);
           await eraseAll();
           await pause(500);
         }
