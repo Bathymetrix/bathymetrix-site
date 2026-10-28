@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Simon;Joel D.;;;
+FN:Joel D. Simon, Ph.D.
+ORG:Bathymetrix\, LLC
+TITLE:Founder & Chief Scientist
+TEL;TYPE=WORK,VOICE:+1-503-810-8670
+EMAIL;TYPE=WORK:jdsimon@bathymetrix.com
+URL:https://bathymetrix.com
+ADR;TYPE=WORK:;;;Portland;OR;;USA
+END:VCARD
