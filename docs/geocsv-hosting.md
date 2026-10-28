@@ -4,10 +4,10 @@
 infrastructure. Snapshot creation, scientific validation, gating, upload and
 latest activation belong to `mermaid-publisher/scripts/geocsv/`.
 
-The authoritative [publication/download contract](../../mermaid-publisher/docs/geocsv/CONTRACT.md),
-[operator workflow](../../mermaid-publisher/docs/geocsv/WORKFLOW.md),
-[scientific report schema](../../mermaid-publisher/docs/geocsv/VALIDATION.md), and
-[historical archive findings](../../mermaid-publisher/docs/geocsv/ARCHIVE_FINDINGS.md)
+The authoritative [publication/download contract](../../mermaid-publisher/docs/geocsv/contract.md),
+[operator workflow](../../mermaid-publisher/docs/geocsv/workflow.md),
+[scientific report schema](../../mermaid-publisher/docs/geocsv/validation.md), and
+[historical archive findings](../../mermaid-publisher/docs/geocsv/archive-findings.md)
 are maintained by the publisher. Scientific APIs remain in `mermaid-geocsv`.
 There are no publication commands or duplicate report/gating implementations here.
 
@@ -53,13 +53,13 @@ does not accept a migrated schema-3 candidate. Fresh full-corpus and separate
 P0006/P0045 schema-3 runs subsequently passed 43,365 and 3,292 original waveform pairs, respectively, and
 the current acceptance gates passed after the local testing-layout change. The
 full check remains temporary; only the selected candidate is in the publication
-archive. See the publisher’s [fresh findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md).
+archive. See the publisher’s [fresh findings](../../mermaid-publisher/docs/geocsv/schema3-findings.md).
 
 A subsequent local revalidation passed all 3,292 P0006/P0045 pairs and the
 acceptance gate with the publisher's frozen consumer `33ed5ff`. Its new report
 remains local; the already hosted immutable report records consumer `c1eb805`
 and was not replaced. No hosting deployment or pointer change was needed.
-See the publisher's [local revalidation findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md#local-consumer-baseline-revalidation--2026-10-26).
+See the publisher's [local revalidation findings](../../mermaid-publisher/docs/geocsv/schema3-findings.md#local-consumer-baseline-revalidation--2026-10-26).
 
 ## SAC consumer refactor and verification
 
@@ -67,7 +67,7 @@ Consumer 0.25.0 replaces its public `write_sac` with
 `associate(..., create_sac_header=True)`. The consumer creates ObsPy-default
 SAC headers plus stla/stlo/stel/stdp; users write with ObsPy Trace/Stream.write.
 The publisher owns final-waveform consistency, float32 storage and output
-verification, with an explicit [migration inventory](../../mermaid-publisher/docs/geocsv/SAC_VERIFICATION.md).
+verification, with an explicit [migration inventory](../../mermaid-publisher/docs/geocsv/sac-verification.md).
 Its unchanged 0.24.0 baseline remains supported alongside the current consumer.
 
 This local source/documentation refactor changes no manifest format, fetch
@@ -105,7 +105,7 @@ were then deleted, and old encoded URLs returned uncached 404. The receipt was
 recorded in scoped local archive commit `2b0f134`. No DNS change, production
 activation or software-repository push occurred. Landing-page wording remains
 local pending the normal static-site deployment.
-See the publisher's [path review and replacement evidence](../../mermaid-publisher/docs/geocsv/RELEASE_PATH_REVIEW.md).
+See the publisher's [path review and replacement evidence](../../mermaid-publisher/docs/geocsv/release-path-review.md).
 
 Public service identifiers: Worker `bathymetrix-geocsv`, route
 `bathymetrix.com/geocsv/*`, bucket binding `GEOCSV`, collection
@@ -186,7 +186,7 @@ The landing page now publishes the testing scope, MH network citation and
 initial-artifact retirement notice; the live page was verified on 2026-10-26.
 The initial testing upload, acceptance rechecks, publication transport and
 complete hosted workflow verification are complete. See the publisher's
-[publication findings](../../mermaid-publisher/docs/geocsv/SCHEMA3_FINDINGS.md#initial-hosted-testing-publication--2026-10-26).
+[publication findings](../../mermaid-publisher/docs/geocsv/schema3-findings.md#initial-hosted-testing-publication--2026-10-26).
 DNSSEC restoration was completed through separately authorized Cloudflare
 signing and publication of the matching DS record through Squarespace on
 2026-10-26. Google and Cloudflare validating resolvers authenticated the DS,

@@ -96,7 +96,7 @@ explicit authorization. Production retention remains indefinite.
 ## Publication ownership
 
 `mermaid-publisher` owns create, validate, gate, upload, latest activation and
-local archive recording under `scripts/geocsv/`. Its `docs/geocsv/CONTRACT.md`
+local archive recording under `scripts/geocsv/`. Its `docs/geocsv/contract.md`
 is the canonical download agreement. This website owns only its read-only
 Worker, landing page and hosting infrastructure. Do not add publishing scripts,
 scientific comparison code or report schemas here. Hosting must honor the

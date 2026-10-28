@@ -20,4 +20,4 @@ the Worker or publish data.
 ## Documentation
 
 - [Static-site launch and deployment](LAUNCH.md)
-- [GeoCSV hosting, ownership and current status](docs/GEOCSV_HOSTING.md)
+- [GeoCSV hosting, ownership and current status](docs/geocsv-hosting.md)
