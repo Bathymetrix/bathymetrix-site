@@ -100,7 +100,10 @@ local archive recording under `scripts/geocsv/`. Its `docs/geocsv/CONTRACT.md`
 is the canonical download agreement. This website owns only its read-only
 Worker, landing page and hosting infrastructure. Do not add publishing scripts,
 scientific comparison code or report schemas here. Hosting must honor the
-existing contract; service changes do not redefine consumer behavior.
+canonical contract; service changes do not redefine consumer behavior. The
+2026-10-28 coordinated path review uses hyphenated creation-timestamp components
+with consumer >= 0.26.0 and authorizes replacement of the initial testing set.
+Its old encoded URLs may be retired; scientific release IDs remain unchanged.
 
 Keep testing URLs/keys/pointers isolated from production and require matching
 flags. Retain the Worker serving tests here; run publication/scientific tests in

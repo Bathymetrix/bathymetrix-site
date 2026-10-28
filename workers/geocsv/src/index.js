@@ -1,4 +1,4 @@
-// Public, read-only GeoCSV route. R2 object keys use literal release timestamps.
+// Public, read-only GeoCSV route. R2 keys and URLs use hyphenated release components.
 const ROOT = "/geocsv/";
 const NO_CACHE = "no-store, max-age=0";
 const IMMUTABLE = "public, max-age=31536000, immutable, no-transform";
@@ -16,6 +16,10 @@ export function validRelease(value) {
     && h <= 23 && minute <= 59 && s <= 59;
 }
 
+function releaseComponent(release) {
+  return release.replaceAll(":", "-");
+}
+
 function message(text, status, extra = {}) {
   return new Response(text, {
     status, headers: { "Cache-Control": NO_CACHE, "Content-Type": "text/plain; charset=utf-8", ...extra },
@@ -25,13 +29,11 @@ function message(text, status, extra = {}) {
 export function releaseKey(pathname) {
   const match = /^\/geocsv\/(testing\/)?releases\/([^/]+)\/([^/]+)$/.exec(pathname);
   if (!match) return null;
-  let release;
-  try { release = decodeURIComponent(match[2]); } catch { return null; }
+  const release = match[2];
   const filename = match[3];
-  if (!validRelease(release) || encodeURIComponent(release) !== match[2]) return null;
+  if (!component.test(release)) return null;
   if (!component.test(filename)
       || !(filename.endsWith(".geocsv") || ["manifest.json", "validation.json"].includes(filename))) return null;
-  // Decoded once above. Never decode the derived R2 key again.
   return `geocsv/${match[1] || ""}releases/${release}/${filename}`;
 }
 
@@ -41,7 +43,7 @@ async function pointer(bucket, root) {
   const text = await object.text();
   const value = JSON.parse(text);
   if (!validRelease(value.release_id) || value.testing_only !== (root !== ROOT)
-      || value.manifest !== `releases/${encodeURIComponent(value.release_id)}/manifest.json`) {
+      || value.manifest !== `releases/${releaseComponent(value.release_id)}/manifest.json`) {
     throw new Error("Invalid latest pointer");
   }
   return { value, text };
@@ -69,7 +71,7 @@ export async function handle(request, env, ctx, dependencies = {}) {
       const selected = await pointer(env.GEOCSV, collectionRoot);
       if (!selected) return message("No release published", 404);
       const filename = latest[1];
-      const prefix = `${collectionRoot.slice(1)}releases/${selected.value.release_id}/`;
+      const prefix = `${collectionRoot.slice(1)}releases/${releaseComponent(selected.value.release_id)}/`;
       const manifestObject = await env.GEOCSV.get(`${prefix}manifest.json`);
       if (!manifestObject) return message("Selected manifest unavailable", 503);
       const manifest = JSON.parse(await manifestObject.text());
@@ -78,7 +80,7 @@ export async function handle(request, env, ctx, dependencies = {}) {
         return message("Selected manifest inconsistent", 503);
       }
       if (!manifest.files.some(entry => entry.filename === filename)) return message("Instrument not found", 404);
-      const location = new URL(`releases/${encodeURIComponent(selected.value.release_id)}/${filename}`, new URL(collectionRoot, url));
+      const location = new URL(`releases/${releaseComponent(selected.value.release_id)}/${filename}`, new URL(collectionRoot, url));
       return new Response(null, { status: 302, headers: { Location: location.href, "Cache-Control": NO_CACHE, ...testingHeaders } });
     }
     const key = releaseKey(url.pathname);

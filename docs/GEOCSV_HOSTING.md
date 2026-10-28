@@ -22,7 +22,9 @@ are no-store. Immutable exact-byte responses and uncached errors retain their
 existing controls. The landing page identifies testing status. The read-only
 Worker was deployed on 2026-10-23. The explicitly authorized P0006/P0045
 snapshot `2026-10-21T22:48:33.277Z` was published on 2026-10-26; the testing
-pointer selects it. The production pointer remains absent. Deployment alone
+pointer selects the same unchanged data/manifest through hyphenated paths after
+the verified 2026-10-28 replacement. Its previous four testing objects and
+encoded URLs were retired. The production pointer remains absent. Deployment alone
 does not authorize additional uploads or production promotion.
 The initial approved hosted batch is limited to P0006 and P0045. Instrument
 scope is frozen at creation; local full-corpus validation is separate and may
@@ -77,6 +79,39 @@ All 11 local Worker tests pass with the bundled Node runtime. The updated
 landing-page wording is local until separately deployed; no live hosting
 verification or deployment is claimed for this refactor.
 
+## Hyphenated release paths — 2026-10-28
+
+Publisher 0.3.0 and consumer 0.26.0 use
+`2026-10-21T22-48-33.277Z` in release URLs, R2 keys and new local directories.
+Only the creation-timestamp time separators are replaced. GeoCSV contents,
+`#created`, manifest/provenance `release_id`, fractional digits and other
+timestamps remain unchanged. Latest pointers and convenience redirects must
+identify the hyphenated component. The initial P0006/P0045 test set is
+authorized for replacement, including retirement of its previous encoded URLs.
+Old clients cannot fetch the replacement timestamped collection; the fixed
+0.24.0 consumer remains a historical/scientific check in the publisher.
+
+The Worker rejects old encoded/literal-colon release paths before reading its
+cache, so cached objects cannot keep retired test paths available through this
+service. New objects are verified before latest activation; prior test objects
+are retired only after replacement verification. Production remains inactive.
+
+The updated Worker and testing replacement were deployed and verified on
+2026-10-28. Worker version: `5c856ea5-34f0-43de-a414-f8faddc6a866`. All 13
+local Worker checks passed. Fresh scientific acceptance covered all 3,292 pairs;
+new objects and GET/HEAD bytes, flags, redirects, latest/pinned fetch and
+disk/memory/reuse passed live checks. Exactly four old testing release objects
+were then deleted, and old encoded URLs returned uncached 404. The receipt was
+recorded in scoped local archive commit `2b0f134`. No DNS change, production
+activation or software-repository push occurred. Landing-page wording remains
+local pending the normal static-site deployment.
+See the publisher's [path review and replacement evidence](../../mermaid-publisher/docs/geocsv/RELEASE_PATH_REVIEW.md).
+
+Public service identifiers: Worker `bathymetrix-geocsv`, route
+`bathymetrix.com/geocsv/*`, bucket binding `GEOCSV`, collection
+`https://bathymetrix.com/geocsv/testing/`, object prefix `geocsv/testing`.
+Account-specific endpoint/bucket configuration and credentials remain private.
+
 ## Read-only serving workflow
 
 ```mermaid
@@ -99,8 +134,10 @@ Keep public bucket URLs disabled. The existing
 GitHub Pages as origin for the landing page and unrelated routes. There are no
 upload/admin routes. No publishing script is retained by this website.
 
-The Worker decodes timestamp URL components exactly once into literal storage
-keys, streams uncompressed objects, and bypasses caches for latest/redirects.
+The updated Worker uses hyphenated creation-timestamp components directly in
+URLs and storage keys, streams uncompressed objects, and bypasses caches for
+latest/redirects. Literal colons and encoded release components are rejected
+before cache lookup; no legacy aliases or URL decoding are provided.
 It caches only successful immutable objects and honors no-cache verification.
 Deployment must preserve exact bytes, identity encoding, cache isolation and
 uncached misses. No generic zone cache rule should override these controls.
@@ -109,7 +146,8 @@ The approved deployment on 2026-10-23 activated the existing route and private
 bucket binding. Live checks confirmed storage access, expected uncached pointer
 and object misses, and unchanged landing-page bytes. No data objects or pointers
 were written. Successful-object testing labels, exact payload bytes, immutable
-caching and conditional writes remain pending. Deployment logs and verification
+caching and conditional writes were subsequently verified during the
+2026-10-26 publication; the 2026-10-28 path replacement also passed live checks. Deployment logs and verification
 evidence are retained privately outside the checkouts.
 
 ## DNS onboarding and remaining activation steps
@@ -234,6 +272,8 @@ Worker tests cover streaming, encoding, cache behavior, isolated testing
 pointers/objects/redirects and flag rejection. Scientific and publisher tests
 run in `mermaid-publisher`; none are duplicated here.
 
+- [x] Deploy the hyphenated release-path Worker, replace and verify the
+  P0006/P0045 testing set, and retire its old URLs/objects (2026-10-28).
 - [x] Separate read-only hosting from the publisher workflow and contract.
 - [x] Implement local testing namespace isolation and explicit response labeling.
 - [x] Complete DNS authority, proxy/TLS, email and scoped Python-client checks.
