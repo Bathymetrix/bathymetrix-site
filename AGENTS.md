@@ -98,7 +98,8 @@ explicit authorization. Production retention remains indefinite.
 Use `../mermaid-geocsv/docs/format-spec.md` for the replacement payload contract
 and `../automaid/docs/geocsv-migration-plan.md` for coordinated implementation.
 The schema is implemented locally with consumer >= 0.27.0 and publisher
-0.4.0/report schema 4; current deployed payloads remain old-format. The
+0.4.0/report schema 4. Publisher 0.4.2 published the schema 1.0.0 P0006/P0045
+testing snapshot on 2026-10-30; production remains inactive. The
 replacement reader supports no legacy payload versions. This site remains an
 exact-byte service; do not add schema-dependent rewriting, legacy aliases or
 fallback. Preserve the publisher-owned manifest/path protocol and testing-only

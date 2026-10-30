@@ -15,8 +15,9 @@ Current producer source is automaid v4.6.2. The initial schema implementation
 was v4.6.0; subsequent v4.6.1 correction-field rounding and v4.6.2 per-record
 read-back checks are documented in [the clock matrix](../../automaid/docs/clock-timing-matrix.md).
 The canonical corpus was regenerated on 2026-10-30. Earlier acceptance reports
-do not accept these new bytes; fresh local evidence is required. Hosted
-old-format payloads and production inactivity are unchanged.
+do not accept these new bytes; fresh local evidence is required. The
+P0006/P0045 schema 1.0.0 testing snapshot was separately authorized and
+published on 2026-10-30. Production remains inactive.
 
 Fresh regenerated-corpus evidence is recorded in [the 2026-10-30 validation findings](../../mermaid-publisher/docs/geocsv/regenerated-corpus-validation.md):
 43,365/43,365 pairs passed report schema 4 and its acceptance gate. This local
@@ -36,8 +37,9 @@ Recording Elevation `0` with declared unit `meters`. The
 [four-repository plan](../../automaid/docs/geocsv-migration-plan.md) coordinates
 the writer, reader, publisher and site. Legacy payload versions are unsupported
 by consumer 0.27.0. Automaid v4.6.0, consumer 0.27.0 and publisher 0.4.0
-implement the migration locally. Existing hosted testing bytes remain old-format
-and are incompatible with the new-only reader; no deployment/publication occurred.
+implemented the migration locally. On 2026-10-30, publisher 0.4.2 published
+compatible P0006/P0045 schema 1.0.0 testing metadata. No Worker redeployment
+was required; see [publication evidence](../../mermaid-publisher/docs/geocsv/schema1-testing-publication.md).
 The historical 0.26.0 path-protocol floor does not establish new-schema support.
 
 The Worker remains an exact-byte service. The payload change does not itself
@@ -60,7 +62,10 @@ Worker was deployed on 2026-10-23. The explicitly authorized P0006/P0045
 snapshot `2026-10-21T22:48:33.277Z` was published on 2026-10-26; the testing
 pointer selects the same unchanged data/manifest through hyphenated paths after
 the verified 2026-10-28 replacement. Its previous four testing objects and
-encoded URLs were retired. The production pointer remains absent. Deployment alone
+encoded URLs were retired. On 2026-10-30 testing latest selected schema 1.0.0
+snapshot `2026-10-30T18:08:32.316000Z` after fresh acceptance of all 3,292
+P0006/P0045 pairs. Exact-byte downloads and parsing passed; the previous
+hyphenated snapshot was retained. The production pointer remains absent. Deployment alone
 does not authorize additional uploads or production promotion.
 The initial approved hosted batch is limited to P0006 and P0045. Instrument
 scope is frozen at creation; local full-corpus validation is separate and may
