@@ -11,6 +11,17 @@ The authoritative [publication/download contract](../../mermaid-publisher/docs/g
 are maintained by the publisher. Scientific APIs remain in `mermaid-geocsv`.
 There are no publication commands or duplicate report/gating implementations here.
 
+Current producer source is automaid v4.6.2. The initial schema implementation
+was v4.6.0; subsequent v4.6.1 correction-field rounding and v4.6.2 per-record
+read-back checks are documented in [the clock matrix](../../automaid/docs/clock-timing-matrix.md).
+The canonical corpus was regenerated on 2026-10-30. Earlier acceptance reports
+do not accept these new bytes; fresh local evidence is required. Hosted
+old-format payloads and production inactivity are unchanged.
+
+Fresh regenerated-corpus evidence is recorded in [the 2026-10-30 validation findings](../../mermaid-publisher/docs/geocsv/regenerated-corpus-validation.md):
+43,365/43,365 pairs passed report schema 4 and its acceptance gate. This local
+testing-only result does not authorize publication or accept different bytes.
+
 ## Local payload schema migration
 
 The selected [MERMAID GeoCSV schema 1.0.0](../../mermaid-geocsv/docs/format-spec.md)
