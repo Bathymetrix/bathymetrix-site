@@ -1,4 +1,6 @@
 // Public, read-only GeoCSV route. R2 keys and URLs use hyphenated release components.
+import { archivePage } from "./archives.js";
+
 const ROOT = "/geocsv/";
 const NO_CACHE = "no-store, max-age=0";
 const IMMUTABLE = "public, max-age=31536000, immutable, no-transform";
@@ -57,8 +59,16 @@ export async function handle(request, env, ctx, dependencies = {}) {
   const testing = collectionRoot !== ROOT;
   const testingHeaders = testing ? { "X-MERMAID-Testing": "true" } : {};
   if (!["GET", "HEAD"].includes(request.method)) return message("Method not allowed", 405, { Allow: "GET, HEAD" });
-  if ([collectionRoot, `${collectionRoot}index.html`].includes(url.pathname)) return originFetch(request);
+  if (!testing && [ROOT, `${ROOT}index.html`].includes(url.pathname)) return originFetch(request);
   try {
+    if (url.pathname === `${collectionRoot}releases/`
+        || (testing && [collectionRoot, `${collectionRoot}index.html`].includes(url.pathname))) {
+      const selected = await pointer(env.GEOCSV, collectionRoot);
+      const html = await archivePage(env.GEOCSV, collectionRoot, selected, validRelease, releaseComponent);
+      return new Response(request.method === "HEAD" ? null : html, {
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_CACHE, ...testingHeaders },
+      });
+    }
     if (url.pathname === `${collectionRoot}latest.json`) {
       const selected = await pointer(env.GEOCSV, collectionRoot);
       if (!selected) return message("No release published", 404);

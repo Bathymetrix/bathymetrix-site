@@ -166,6 +166,32 @@ flowchart LR
 
 ## Worker deployment preparation
 
+### Browser archive listings
+
+The Worker implements browser listings at `/geocsv/testing/` (also
+`/geocsv/testing/index.html` and `/geocsv/testing/releases/`) and
+`/geocsv/releases/` for the separate production collection. `/geocsv/`
+continues to serve the static overview, which links to both listings.
+
+Listings discover hosted release directories through paginated, read-only R2
+listing and read their manifests. Directories without a manifest are omitted.
+Manifest identity/path and testing flags must match the collection; inconsistent
+metadata returns an uncached 503. Each row shows the exact snapshot creation
+timestamp in UTC, collection status, the latest-pointer selection, and pinned
+manifest/instrument links. A validation-report link appears when that object
+exists. Snapshot dates do not represent upload dates. Historical payloads may
+use different schemas; listings do not parse or rewrite them.
+
+Listings are generated without browser JavaScript and use `no-store`, so newly
+available manifests and retired manifests are reflected on refresh. This is
+an inventory of available hosted snapshots, not a publication/acceptance gate;
+the publisher retains those responsibilities. No data objects, pointers or
+publication records are changed. Testing availability remains temporary.
+Deploy the changed Worker and static overview to make this feature live;
+the local static preview alone cannot generate archive listings.
+
+### Deployment configuration
+
 `workers/geocsv/wrangler.example.jsonc` is a portable deployment template. Keep
 actual configuration in an approved private location outside the checkout; supply the
 approved private bucket binding. When the configuration is outside this

@@ -15,6 +15,7 @@ function setup() {
     [prefix + "P0006.geocsv", payload],
   ]);
   const reads = [];
+  const listings = [];
   const object = key => {
     reads.push(key);
     if (!data.has(key)) return null;
@@ -22,7 +23,20 @@ function setup() {
     return { body: new Blob([value]).stream(), text: async () => value,
       size: Buffer.byteLength(value), httpEtag: '"test-etag"', writeHttpMetadata: () => {} };
   };
-  const env = { GEOCSV: { get: async key => object(key), head: async key => object(key) } };
+  const env = { GEOCSV: {
+    get: async key => object(key), head: async key => object(key),
+    list: async options => {
+      listings.push(options);
+      const directories = [...new Set([...data.keys()]
+        .filter(key => key.startsWith(options.prefix) && key.slice(options.prefix.length).includes("/"))
+        .map(key => options.prefix + key.slice(options.prefix.length).split("/")[0] + "/"))].sort();
+      // One prefix per page exercises R2 cursor handling.
+      const offset = Number(options.cursor || 0);
+      const truncated = offset + 1 < directories.length;
+      return { delimitedPrefixes: directories.slice(offset, offset + 1), truncated,
+        ...(truncated ? { cursor: String(offset + 1) } : {}) };
+    },
+  } };
   const entries = new Map();
   const cache = {
     match: async request => entries.get(request.url)?.clone(),
@@ -32,7 +46,7 @@ function setup() {
   const ctx = { waitUntil: promise => pending.push(promise) };
   const originFetch = async () => new Response("GitHub Pages origin");
   const request = (path, options = {}) => handle(new Request(`https://bathymetrix.com${path}`, options), env, ctx, { cache, originFetch });
-  return { data, reads, entries, pending, request };
+  return { data, reads, listings, entries, pending, request };
 }
 
 test("timestamp validation preserves fractional spelling and calendar limits", () => {
@@ -172,4 +186,108 @@ test("latest rejects the retired encoded timestamp convention", async () => {
   assert.equal((await state.request("/geocsv/testing/latest.json")).status, 503);
   assert.equal((await state.request("/geocsv/testing/latest/P0006.geocsv")).status, 503);
   assert.equal(state.entries.size, 0);
+});
+
+test("archive lists all hosted manifests newest first with exact timestamps and pinned links", async () => {
+  const state = setup();
+  const newer = "2026-10-30T18:08:32.316000Z";
+  const newerPath = newer.replaceAll(":", "-");
+  for (const id of [release, newer]) {
+    const directory = `geocsv/testing/releases/${id.replaceAll(":", "-")}/`;
+    state.data.set(directory + "manifest.json", JSON.stringify({
+      release_id: id, testing_only: true, files: [{ filename: "P0006.geocsv" }, { filename: "P0045.geocsv" }],
+    }));
+    state.data.set(directory + "validation.json", "{}");
+  }
+  state.data.set("geocsv/testing/latest.json", JSON.stringify({
+    release_id: newer, testing_only: true, manifest: `releases/${newerPath}/manifest.json`,
+  }));
+  state.data.set("geocsv/testing/releases/incomplete/P0006.geocsv", "not yet manifested");
+  const response = await state.request("/geocsv/testing/");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("Content-Type"), /text\/html/);
+  assert.match(response.headers.get("Cache-Control"), /no-store/);
+  assert.equal(response.headers.get("X-MERMAID-Testing"), "true");
+  assert.ok(html.indexOf(`datetime="${newer}"`) < html.indexOf(`datetime="${release}"`));
+  assert.match(html, /2026-10-30 18:08:32\.316000 UTC/);
+  assert.match(html, /2026-10-21 22:48:33\.277000001 UTC/);
+  assert.match(html, /Testing only/);
+  assert.match(html, /Latest<\/span>/);
+  assert.match(html, new RegExp(`href="/geocsv/testing/releases/${newerPath}/P0045.geocsv"`));
+  assert.match(html, /validation\.json">Validation report/);
+  assert.match(html, /creation times, not upload dates/);
+  assert.doesNotMatch(html, /incomplete/);
+  assert.equal(state.listings.length, 3);
+  assert.ok(state.listings.every(options => options.prefix === "geocsv/testing/releases/" && options.delimiter === "/"));
+  assert.ok(state.reads.every(key => key.startsWith("geocsv/testing/")));
+  assert.equal(state.entries.size, 0);
+});
+
+test("production archive stays separate and empty production is described accurately", async () => {
+  const state = setup();
+  let response = await state.request("/geocsv/releases/");
+  assert.equal(response.headers.get("X-MERMAID-Testing"), null);
+  let html = await response.text();
+  assert.match(html, /GeoCSV production archives/);
+  assert.match(html, /<td>Production<\/td>/);
+  assert.match(html, new RegExp(`href="/geocsv/releases/${releasePath}/P0006.geocsv"`));
+  assert.doesNotMatch(html, /validation\.json">Validation report/);
+  state.data.delete(prefix + "manifest.json");
+  state.data.delete("geocsv/latest.json");
+  html = await (await state.request("/geocsv/releases/")).text();
+  assert.match(html, /No production snapshots are currently available/);
+  assert.doesNotMatch(html, /<table>/);
+});
+
+test("archive date ordering preserves sub-millisecond precision and optional fractions", async () => {
+  const state = setup();
+  const ids = ["2026-10-30T18:08:32Z", "2026-10-30T18:08:32.000000001Z", "2026-10-30T18:08:32.000000002Z"];
+  for (const id of ids) {
+    state.data.set(`geocsv/testing/releases/${id.replaceAll(":", "-")}/manifest.json`, JSON.stringify({
+      release_id: id, testing_only: true, files: [],
+    }));
+  }
+  const html = await (await state.request("/geocsv/testing/")).text();
+  assert.ok(html.indexOf(`datetime="${ids[2]}"`) < html.indexOf(`datetime="${ids[1]}"`));
+  assert.ok(html.indexOf(`datetime="${ids[1]}"`) < html.indexOf(`datetime="${ids[0]}"`));
+});
+
+test("archive refresh reflects additions and retirement without a latest pointer", async () => {
+  const state = setup();
+  assert.match(await (await state.request("/geocsv/testing/")).text(), /No testing snapshots/);
+  const directory = `geocsv/testing/releases/${releasePath}/`;
+  state.data.set(directory + "manifest.json", JSON.stringify({
+    release_id: release, testing_only: true, files: [{ filename: "P0006.geocsv" }],
+  }));
+  assert.match(await (await state.request("/geocsv/testing/")).text(), /1 instrument file<\/summary>/);
+  state.data.delete(directory + "manifest.json");
+  assert.match(await (await state.request("/geocsv/testing/")).text(), /No testing snapshots/);
+});
+
+test("archive rejects inconsistent namespaces, identities and unsafe manifest links", async () => {
+  const state = setup();
+  for (const invalid of [
+    { testing_only: false }, { release_id: "wrong-directory" },
+    { files: [{ filename: '../escape.geocsv' }] },
+    { files: [{ filename: 'x\" onclick=\"alert(1).geocsv' }] },
+  ]) {
+    state.data.set(`geocsv/testing/releases/${releasePath}/manifest.json`, JSON.stringify({
+      release_id: release, testing_only: true, files: [], ...invalid,
+    }));
+    const response = await state.request("/geocsv/testing/");
+    assert.equal(response.status, 503);
+    assert.match(response.headers.get("Cache-Control"), /no-store/);
+  }
+});
+
+test("archive aliases and HEAD work; writes remain rejected", async () => {
+  const state = setup();
+  for (const path of ["/geocsv/testing/", "/geocsv/testing/index.html", "/geocsv/testing/releases/", "/geocsv/releases/"]) {
+    const response = await state.request(path, { method: "HEAD" });
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("Content-Type"), /text\/html/);
+    assert.equal(await response.text(), "");
+    assert.equal((await state.request(path, { method: "POST" })).status, 405);
+  }
 });
