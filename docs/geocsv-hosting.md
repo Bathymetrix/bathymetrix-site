@@ -24,6 +24,12 @@ testing-only result does not authorize publication or accept different bytes.
 
 ## Local payload schema migration
 
+Publisher 0.4.1 checks the exact schema 1.0.0 first line and six-digit UTC
+`#created` declaration during creation and candidate inspection, including
+recordless sources. It rejects duplicate schema declarations and comments after
+the column header. Full parsing remains consumer-owned. Report schema 4,
+scientific limits, manifest/download fields and this Worker are unchanged.
+
 The selected [MERMAID GeoCSV schema 1.0.0](../../mermaid-geocsv/docs/format-spec.md)
 defines the replacement payload header, fields, missingness and numeric
 Recording Elevation `0` with declared unit `meters`. The
