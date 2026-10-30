@@ -93,6 +93,18 @@ until retirement; never reuse retired testing identities for different bytes.
 Cleanup of hosted objects, caches, local artifacts or history still requires
 explicit authorization. Production retention remains indefinite.
 
+## Local GeoCSV schema migration
+
+Use `../mermaid-geocsv/docs/format-spec.md` for the replacement payload contract
+and `../automaid/docs/geocsv-migration-plan.md` for coordinated implementation.
+The schema is implemented locally with consumer >= 0.27.0 and publisher
+0.4.0/report schema 4; current deployed payloads remain old-format. The
+replacement reader supports no legacy payload versions. This site remains an
+exact-byte service; do not add schema-dependent rewriting, legacy aliases or
+fallback. Preserve the publisher-owned manifest/path protocol and testing-only
+activation boundary. Older consumer/version references describe current or
+historical behavior until the migration is verified.
+
 ## Publication ownership
 
 `mermaid-publisher` owns create, validate, gate, upload, latest activation and

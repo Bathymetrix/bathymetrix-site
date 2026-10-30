@@ -11,6 +11,25 @@ The authoritative [publication/download contract](../../mermaid-publisher/docs/g
 are maintained by the publisher. Scientific APIs remain in `mermaid-geocsv`.
 There are no publication commands or duplicate report/gating implementations here.
 
+## Local payload schema migration
+
+The selected [MERMAID GeoCSV schema 1.0.0](../../mermaid-geocsv/docs/format-spec.md)
+defines the replacement payload header, fields, missingness and numeric
+Recording Elevation `0` with declared unit `meters`. The
+[four-repository plan](../../automaid/docs/geocsv-migration-plan.md) coordinates
+the writer, reader, publisher and site. Legacy payload versions are unsupported
+by consumer 0.27.0. Automaid v4.6.0, consumer 0.27.0 and publisher 0.4.0
+implement the migration locally. Existing hosted testing bytes remain old-format
+and are incompatible with the new-only reader; no deployment/publication occurred.
+The historical 0.26.0 path-protocol floor does not establish new-schema support.
+
+The Worker remains an exact-byte service. The payload change does not itself
+change manifests, literal release identities, hyphenated release components or
+publication ownership. The existing Worker routing/streaming contract requires no code change; add no
+schema-dependent rewriting or legacy fallback. New payload bytes require a new
+immutable snapshot and separately authorized activation. No deployment or
+publication is authorized by this specification work.
+
 ## Current status: testing only
 
 All hosted data remain testing only. The local Worker implements isolated
@@ -68,7 +87,8 @@ Consumer 0.25.0 replaces its public `write_sac` with
 SAC headers plus stla/stlo/stel/stdp; users write with ObsPy Trace/Stream.write.
 The publisher owns final-waveform consistency, float32 storage and output
 verification, with an explicit [migration inventory](../../mermaid-publisher/docs/geocsv/sac-verification.md).
-Its unchanged 0.24.0 baseline remains supported alongside the current consumer.
+Its former 0.24.0 baseline remains historical evidence; the active publisher
+requires consumer >= 0.27.0 and report schema 4, with unchanged scientific limits.
 
 This local source/documentation refactor changes no manifest format, fetch
 protocol, URLs, object bytes, caches, testing flags or Worker behavior. Existing
@@ -89,7 +109,7 @@ timestamps remain unchanged. Latest pointers and convenience redirects must
 identify the hyphenated component. The initial P0006/P0045 test set is
 authorized for replacement, including retirement of its previous encoded URLs.
 Old clients cannot fetch the replacement timestamped collection; the fixed
-0.24.0 consumer remains a historical/scientific check in the publisher.
+0.24.0 consumer remains historical evidence in the publisher.
 
 The Worker rejects old encoded/literal-colon release paths before reading its
 cache, so cached objects cannot keep retired test paths available through this
@@ -295,3 +315,13 @@ run in `mermaid-publisher`; none are duplicated here.
 
 All deployment and remote publication require explicit authorization. Production
 promotion and first formal release remain separately unauthorized.
+
+## Schema 1.0.0 payload rules
+
+The [payload specification](../../mermaid-geocsv/docs/format-spec.md) requires
+explicit zero Recording Elevation and preserves finite signed pressure-sensor
+readings, including gauge error. Recording pressure and crossing proxies remain
+nonnegative. The site performs no interpretation, clamping or schema-dependent
+rewriting. Manifest fields, literal release IDs, token IDs, all fractional digits,
+the two-colon path transformation, immutable objects and testing isolation remain
+unchanged. Local tests establish local serving behavior only; production is inactive.
