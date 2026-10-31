@@ -209,14 +209,14 @@ test("archive lists all hosted manifests newest first with exact timestamps and 
   assert.match(response.headers.get("Content-Type"), /text\/html/);
   assert.match(response.headers.get("Cache-Control"), /no-store/);
   assert.equal(response.headers.get("X-MERMAID-Testing"), "true");
-  assert.ok(html.indexOf(`datetime="${newer}"`) < html.indexOf(`datetime="${release}"`));
-  assert.match(html, /2026-10-30 18:08:32\.316000 UTC/);
-  assert.match(html, /2026-10-21 22:48:33\.277000001 UTC/);
+  assert.ok(html.indexOf(`${newerPath}/`) < html.indexOf(`${releasePath}/`));
+  assert.match(html, /2026-10-30T18-08-32\.316000Z/);
+  assert.match(html, /2026-10-21T22-48-33\.277000001Z/);
   assert.match(html, /Testing only/);
-  assert.match(html, /Latest<\/span>/);
+  assert.match(html, /\(latest\)/);
   assert.match(html, new RegExp(`href="/geocsv/testing/releases/${newerPath}/P0045.geocsv"`));
-  assert.match(html, /validation\.json">Validation report/);
-  assert.match(html, /creation times, not upload dates/);
+  assert.match(html, /validation\.json">validation\.json/);
+  assert.doesNotMatch(html, /<table|<details/);
   assert.doesNotMatch(html, /incomplete/);
   assert.equal(state.listings.length, 3);
   assert.ok(state.listings.every(options => options.prefix === "geocsv/testing/releases/" && options.delimiter === "/"));
@@ -229,8 +229,8 @@ test("production archive stays separate and empty production is described accura
   let response = await state.request("/geocsv/releases/");
   assert.equal(response.headers.get("X-MERMAID-Testing"), null);
   let html = await response.text();
-  assert.match(html, /GeoCSV production archives/);
-  assert.match(html, /<td>Production<\/td>/);
+  assert.match(html, /Index of \/geocsv\/releases\//);
+  assert.match(html, /<p>Production<\/p>/);
   assert.match(html, new RegExp(`href="/geocsv/releases/${releasePath}/P0006.geocsv"`));
   assert.doesNotMatch(html, /validation\.json">Validation report/);
   state.data.delete(prefix + "manifest.json");
@@ -249,8 +249,8 @@ test("archive date ordering preserves sub-millisecond precision and optional fra
     }));
   }
   const html = await (await state.request("/geocsv/testing/")).text();
-  assert.ok(html.indexOf(`datetime="${ids[2]}"`) < html.indexOf(`datetime="${ids[1]}"`));
-  assert.ok(html.indexOf(`datetime="${ids[1]}"`) < html.indexOf(`datetime="${ids[0]}"`));
+  assert.ok(html.indexOf(ids[2].replaceAll(":", "-")) < html.indexOf(ids[1].replaceAll(":", "-")));
+  assert.ok(html.indexOf(ids[1].replaceAll(":", "-")) < html.indexOf(ids[0].replaceAll(":", "-")));
 });
 
 test("archive refresh reflects additions and retirement without a latest pointer", async () => {
@@ -260,7 +260,7 @@ test("archive refresh reflects additions and retirement without a latest pointer
   state.data.set(directory + "manifest.json", JSON.stringify({
     release_id: release, testing_only: true, files: [{ filename: "P0006.geocsv" }],
   }));
-  assert.match(await (await state.request("/geocsv/testing/")).text(), /1 instrument file<\/summary>/);
+  assert.match(await (await state.request("/geocsv/testing/")).text(), /P0006\.geocsv/);
   state.data.delete(directory + "manifest.json");
   assert.match(await (await state.request("/geocsv/testing/")).text(), /No testing snapshots/);
 });
@@ -290,4 +290,64 @@ test("archive aliases and HEAD work; writes remain rejected", async () => {
     assert.equal(await response.text(), "");
     assert.equal((await state.request(path, { method: "POST" })).status, 405);
   }
+});
+
+
+test("bundle GET and HEAD preserve compressed bytes, metadata and cache behavior", async () => {
+  const state = setup();
+  const filename = "MERMAID.geocsv.tar.gz";
+  const bytes = Buffer.from([0x1f, 0x8b, 0, 1, 2, 255]);
+  state.data.set(prefix + filename, bytes);
+  const path = `/geocsv/releases/${releasePath}/${filename}`;
+  assert.equal(releaseKey(path), prefix + filename);
+  let response = await state.request(path);
+  assert.deepEqual(Buffer.from(await response.arrayBuffer()), bytes);
+  assert.equal(response.headers.get("Content-Type"), "application/gzip");
+  assert.equal(response.headers.get("Content-Disposition"), 'attachment; filename="MERMAID.geocsv.tar.gz"');
+  assert.equal(response.headers.get("Content-Encoding"), null);
+  assert.match(response.headers.get("Cache-Control"), /immutable.*no-transform/);
+  await Promise.all(state.pending);
+  const count = state.reads.length;
+  assert.deepEqual(Buffer.from(await (await state.request(path)).arrayBuffer()), bytes);
+  assert.equal(state.reads.length, count);
+  response = await state.request(path, { method: "HEAD" });
+  assert.equal(await response.text(), "");
+  assert.equal(response.headers.get("Content-Length"), String(bytes.length));
+  assert.equal(response.headers.get("Content-Type"), "application/gzip");
+  assert.equal((await state.request(`/geocsv/releases/${releasePath}/other.tar.gz`)).status, 404);
+});
+
+test("release directories are plain pinned file trees without a latest pointer", async () => {
+  const state = setup();
+  const directory = `geocsv/testing/releases/${releasePath}/`;
+  state.data.set(directory + "manifest.json", JSON.stringify({
+    release_id: release, testing_only: true, files: [{ filename: "P0006.geocsv" }],
+  }));
+  state.data.set(directory + "validation.json", "{}");
+  const path = `/geocsv/testing/releases/${releasePath}/`;
+  let response = await state.request(path);
+  let html = await response.text();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("X-MERMAID-Testing"), "true");
+  assert.match(response.headers.get("Cache-Control"), /no-store/);
+  assert.match(html, new RegExp(`href="${path}P0006.geocsv"`));
+  assert.match(html, new RegExp(`href="${path}manifest.json"`));
+  assert.match(html, new RegExp(`href="${path}validation.json"`));
+  assert.doesNotMatch(html, /MERMAID\.geocsv\.tar\.gz|<table|<details/);
+  assert.equal(state.listings.length, 0);
+  state.data.set(directory + "MERMAID.geocsv.tar.gz", "bundle");
+  html = await (await state.request(path)).text();
+  assert.match(html, new RegExp(`href="${path}MERMAID.geocsv.tar.gz"`));
+  const index = await (await state.request("/geocsv/testing/")).text();
+  assert.match(index, new RegExp(`href="${path}"`));
+  assert.match(index, /MERMAID\.geocsv\.tar\.gz/);
+  response = await state.request(path, { method: "HEAD" });
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "");
+  assert.equal((await state.request("/geocsv/testing/releases/missing/")).status, 404);
+  assert.equal((await state.request(`/geocsv/testing/releases/${encoded}/`)).status, 404);
+  assert.equal((await state.request(`/geocsv/testing/releases/${release}/`)).status, 404);
+  assert.equal((await state.request(`/geocsv/releases/${releasePath}/`)).headers.get("X-MERMAID-Testing"), null);
+  const bundle = await state.request(path + "MERMAID.geocsv.tar.gz");
+  assert.equal(bundle.headers.get("X-MERMAID-Testing"), "true");
 });

@@ -47,6 +47,9 @@ remain bound to their original inputs and software.
 The Worker accepts only GET/HEAD. It serves isolated collection-relative
 `latest.json`, `latest/<instrument>.geocsv` temporary 302 redirects, and
 `releases/<component>/{manifest.json,validation.json,<instrument>.geocsv}`.
+Local bundle support adds the exact `MERMAID.geocsv.tar.gz` filename, served
+as `application/gzip` with an attachment filename and no HTTP content encoding.
+Its stored gzip bytes retain the immutable/no-transform policy.
 Latest and redirect responses bypass caches. Successful immutable objects use
 `public, max-age=31536000, immutable, no-transform`; misses and errors are not
 cached. `Cache-Control: no-cache` or `no-store` forces a storage read for
@@ -64,11 +67,19 @@ Listings are available at `/geocsv/testing/`, `/geocsv/testing/index.html`,
 `/geocsv/testing/releases/` and the separate production `/geocsv/releases/`.
 They use paginated read-only R2 listing and manifests; directories without a
 manifest are omitted. Identity/path/collection flags must agree or return an
-uncached 503. Rows show exact snapshot creation UTC, collection status, latest
-selection and pinned manifest/payload links. A report link appears if present.
-Creation timestamps are not upload dates. Listings do not parse schemas or
-establish acceptance. They use no browser JavaScript and respond `no-store`.
-The static preview cannot generate these Worker-owned pages.
+uncached 503. Locally implemented pages use a plain clickable directory tree,
+with exact release components and a latest marker. Each
+`releases/<component>/` URL opens its own file tree, independent of latest.
+Instrument links come from the manifest; validation and bundle links appear
+only when the corresponding objects exist. Missing release manifests return
+404. Listings do not parse schemas or establish acceptance. They use no browser
+JavaScript and respond `no-store`. The static preview cannot generate these
+Worker-owned pages.
+
+The directory-tree, per-release page and bundle changes are local and not yet
+deployed. Existing hosted snapshots have no automatic bundle backfill.
+Deployment and bundle uploads require explicit authorization. The publisher
+builds and records bundles; this Worker serves existing objects only.
 
 ## Deployment and access constraints
 

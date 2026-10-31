@@ -35,7 +35,7 @@ export function releaseKey(pathname) {
   const filename = match[3];
   if (!component.test(release)) return null;
   if (!component.test(filename)
-      || !(filename.endsWith(".geocsv") || ["manifest.json", "validation.json"].includes(filename))) return null;
+      || !(filename.endsWith(".geocsv") || ["manifest.json", "validation.json", "MERMAID.geocsv.tar.gz"].includes(filename))) return null;
   return `geocsv/${match[1] || ""}releases/${release}/${filename}`;
 }
 
@@ -65,6 +65,14 @@ export async function handle(request, env, ctx, dependencies = {}) {
         || (testing && [collectionRoot, `${collectionRoot}index.html`].includes(url.pathname))) {
       const selected = await pointer(env.GEOCSV, collectionRoot);
       const html = await archivePage(env.GEOCSV, collectionRoot, selected, validRelease, releaseComponent);
+      return new Response(request.method === "HEAD" ? null : html, {
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_CACHE, ...testingHeaders },
+      });
+    }
+    const directory = /^releases\/([A-Za-z0-9][A-Za-z0-9._-]*)\/$/.exec(url.pathname.slice(collectionRoot.length));
+    if (directory) {
+      const html = await archivePage(env.GEOCSV, collectionRoot, null, validRelease, releaseComponent, directory[1]);
+      if (html === null) return message("Snapshot not found", 404);
       return new Response(request.method === "HEAD" ? null : html, {
         headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_CACHE, ...testingHeaders },
       });
@@ -108,7 +116,9 @@ export async function handle(request, env, ctx, dependencies = {}) {
     const headers = new Headers();
     object.writeHttpMetadata(headers);
     headers.delete("Content-Encoding"); // Publisher stores uncompressed, exact bytes.
-    headers.set("Content-Type", key.endsWith(".json") ? "application/json; charset=utf-8" : "text/csv; charset=utf-8");
+    const bundle = key.endsWith("/MERMAID.geocsv.tar.gz");
+    headers.set("Content-Type", bundle ? "application/gzip" : key.endsWith(".json") ? "application/json; charset=utf-8" : "text/csv; charset=utf-8");
+    if (bundle) headers.set("Content-Disposition", 'attachment; filename="MERMAID.geocsv.tar.gz"');
     headers.set("Content-Length", String(object.size));
     headers.set("ETag", object.httpEtag);
     headers.set("Cache-Control", IMMUTABLE);
