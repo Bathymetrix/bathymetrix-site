@@ -93,18 +93,15 @@ until retirement; never reuse retired testing identities for different bytes.
 Cleanup of hosted objects, caches, local artifacts or history still requires
 explicit authorization. Production retention remains indefinite.
 
-## Local GeoCSV schema migration
+## GeoCSV payload and service contract
 
-Use `../mermaid-geocsv/docs/format-spec.md` for the replacement payload contract
-and `../automaid/docs/geocsv-migration-plan.md` for coordinated implementation.
-The schema is implemented locally with consumer >= 0.27.0 and publisher
-0.4.0/report schema 4. Publisher 0.4.2 published the schema 1.0.0 P0006/P0045
-testing snapshot on 2026-10-30; production remains inactive. The
-replacement reader supports no legacy payload versions. This site remains an
-exact-byte service; do not add schema-dependent rewriting, legacy aliases or
-fallback. Preserve the publisher-owned manifest/path protocol and testing-only
-activation boundary. Older consumer/version references describe current or
-historical behavior until the migration is verified.
+`../mermaid-geocsv/docs/format-spec.md` defines payload schema 1.0.0.
+The publisher's `docs/geocsv/contract.md` defines manifests, paths, exact bytes
+and activation boundaries. This site serves bytes without schema-dependent
+rewriting or source-value defaults. Retained snapshots can have unsupported
+schemas; successful transport does not establish reader compatibility.
+Use the runbook for verified deployment status. Public archive listings are
+read-only inventories, not validation or publication gates.
 
 ## Publication ownership
 
@@ -113,10 +110,8 @@ local archive recording under `scripts/geocsv/`. Its `docs/geocsv/contract.md`
 is the canonical download agreement. This website owns only its read-only
 Worker, landing page and hosting infrastructure. Do not add publishing scripts,
 scientific comparison code or report schemas here. Hosting must honor the
-canonical contract; service changes do not redefine consumer behavior. The
-2026-10-28 coordinated path review uses hyphenated creation-timestamp components
-with consumer >= 0.26.0 and authorizes replacement of the initial testing set.
-Its old encoded URLs may be retired; scientific release IDs remain unchanged.
+canonical contract; service changes do not redefine consumer behavior. Use hyphenated release path components while preserving literal scientific
+release IDs. Encoded and literal-colon paths are rejected before cache lookup.
 
 Keep testing URLs/keys/pointers isolated from production and require matching
 flags. Retain the Worker serving tests here; run publication/scientific tests in

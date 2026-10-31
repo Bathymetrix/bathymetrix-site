@@ -1,375 +1,125 @@
-# GeoCSV hosting implementation and deployment
+# GeoCSV hosting
 
-`bathymetrix-site` owns the read-only download service, landing page and hosting
-infrastructure. Snapshot creation, scientific validation, gating, upload and
-latest activation belong to `mermaid-publisher/scripts/geocsv/`.
+The read-only Cloudflare Worker serves GeoCSV snapshots from private R2.
+`mermaid-publisher` owns snapshot creation, exhaustive scientific validation,
+gating, upload, latest activation and archive recording. Follow its
+[contract](../../mermaid-publisher/docs/geocsv/contract.md) and
+[workflow](../../mermaid-publisher/docs/geocsv/workflow.md).
+The [payload schema](../../mermaid-geocsv/docs/format-spec.md) and scientific
+APIs belong to the consumer. Hosting never interprets or rewrites scientific data.
 
-The authoritative [publication/download contract](../../mermaid-publisher/docs/geocsv/contract.md),
-[operator workflow](../../mermaid-publisher/docs/geocsv/workflow.md),
-[scientific report schema](../../mermaid-publisher/docs/geocsv/validation.md), and
-[historical archive findings](../../mermaid-publisher/docs/geocsv/archive-findings.md)
-are maintained by the publisher. Scientific APIs remain in `mermaid-geocsv`.
-There are no publication commands or duplicate report/gating implementations here.
+## Current service
 
-Current producer source is automaid v4.6.2. The initial schema implementation
-was v4.6.0; subsequent v4.6.1 correction-field rounding and v4.6.2 per-record
-read-back checks are documented in [the clock matrix](../../automaid/docs/clock-timing-matrix.md).
-The canonical corpus was regenerated on 2026-10-30. Earlier acceptance reports
-do not accept these new bytes; fresh local evidence is required. The
-P0006/P0045 schema 1.0.0 testing snapshot was separately authorized and
-published on 2026-10-30. Production remains inactive.
+Testing latest selects P0006/P0045 schema 1.0.0 snapshot
+`2026-10-30T18:08:32.316000Z`, compatible with consumer >= 0.27.0.
+Production latest is absent. The Worker and browser archive listings are live.
+The [publication record](../../mermaid-publisher/docs/geocsv/schema1-testing-publication.md)
+identifies accepted artifact hashes and the receipt; other retained snapshots
+can use unsupported schemas. A successful download does not establish parser
+compatibility. No snapshot retirement is part of documentation maintenance.
 
-Fresh regenerated-corpus evidence is recorded in [the 2026-10-30 validation findings](../../mermaid-publisher/docs/geocsv/regenerated-corpus-validation.md):
-43,365/43,365 pairs passed report schema 4 and its acceptance gate. This local
-testing-only result does not authorize publication or accept different bytes.
+| Public service identifier | Value |
+| --- | --- |
+| Worker | `bathymetrix-geocsv` |
+| Route | `bathymetrix.com/geocsv/*` |
+| R2 binding | `GEOCSV` |
+| Testing collection | `https://bathymetrix.com/geocsv/testing/` |
+| Testing key prefix | `geocsv/testing` |
+| Production pointer | `/geocsv/latest.json` (inactive) |
 
-## Local payload schema migration
+The static overview at `/geocsv/` and unrelated pages retain GitHub Pages as
+origin. Testing and production have separate pointers, object namespaces and
+flag requirements. Testing successes carry `X-MERMAID-Testing: true`.
 
-Publisher 0.4.1 checks the exact schema 1.0.0 first line and six-digit UTC
-`#created` declaration during creation and candidate inspection, including
-recordless sources. It rejects duplicate schema declarations and comments after
-the column header. Full parsing remains consumer-owned. Report schema 4,
-scientific limits, manifest/download fields and this Worker are unchanged.
+All hosted data are testing only. Approved distribution is limited to P0006
+and P0045; full-corpus licensing remains unresolved. Cite MH network DOI
+`10.7914/SN/MH`. Software licensing does not establish a data license.
+Scientific acceptance, an available service and testing publication do not
+authorize uploads, production activation or a formal release. Further uploads,
+deployment and retirement require explicit authorization. Retain exact bytes
+until authorized retirement; never reuse a retired identity for different bytes.
+Testing pinned links do not promise indefinite availability; production retention
+is indefinite. [Evidence records](../../mermaid-publisher/docs/geocsv/evidence.md)
+remain bound to their original inputs and software.
 
-The selected [MERMAID GeoCSV schema 1.0.0](../../mermaid-geocsv/docs/format-spec.md)
-defines the replacement payload header, fields, missingness and numeric
-Recording Elevation `0` with declared unit `meters`. The
-[four-repository plan](../../automaid/docs/geocsv-migration-plan.md) coordinates
-the writer, reader, publisher and site. Legacy payload versions are unsupported
-by consumer 0.27.0. Automaid v4.6.0, consumer 0.27.0 and publisher 0.4.0
-implemented the migration locally. On 2026-10-30, publisher 0.4.2 published
-compatible P0006/P0045 schema 1.0.0 testing metadata. No Worker redeployment
-was required; see [publication evidence](../../mermaid-publisher/docs/geocsv/schema1-testing-publication.md).
-The historical 0.26.0 path-protocol floor does not establish new-schema support.
+## Routes and bytes
 
-The Worker remains an exact-byte service. The payload change does not itself
-change manifests, literal release identities, hyphenated release components or
-publication ownership. The existing Worker routing/streaming contract requires no code change; add no
-schema-dependent rewriting or legacy fallback. New payload bytes require a new
-immutable snapshot and separately authorized activation. No deployment or
-publication is authorized by this specification work.
+The Worker accepts only GET/HEAD. It serves isolated collection-relative
+`latest.json`, `latest/<instrument>.geocsv` temporary 302 redirects, and
+`releases/<component>/{manifest.json,validation.json,<instrument>.geocsv}`.
+Latest and redirect responses bypass caches. Successful immutable objects use
+`public, max-age=31536000, immutable, no-transform`; misses and errors are not
+cached. `Cache-Control: no-cache` or `no-store` forces a storage read for
+verification. HEAD returns object metadata without a body. Payloads are stored
+uncompressed, streamed without transformation and served with exact byte counts.
 
-## Current status: testing only
-
-All hosted data remain testing only. The local Worker implements isolated
-`/geocsv/testing/` URLs and `geocsv/testing/` R2 keys, separate from future
-production `/geocsv/` paths and keys. Each collection has its own latest pointer.
-Testing pointers require `testing_only: true`; production pointers require false.
-Testing successes carry `X-MERMAID-Testing: true` and pointer/redirect responses
-are no-store. Immutable exact-byte responses and uncached errors retain their
-existing controls. The landing page identifies testing status. The read-only
-Worker was deployed on 2026-10-23. The explicitly authorized P0006/P0045
-snapshot `2026-10-21T22:48:33.277Z` was published on 2026-10-26; the testing
-pointer selects the same unchanged data/manifest through hyphenated paths after
-the verified 2026-10-28 replacement. Its previous four testing objects and
-encoded URLs were retired. On 2026-10-30 testing latest selected schema 1.0.0
-snapshot `2026-10-30T18:08:32.316000Z` after fresh acceptance of all 3,292
-P0006/P0045 pairs. Exact-byte downloads and parsing passed; the previous
-hyphenated snapshot was retained. The production pointer remains absent. Deployment alone
-does not authorize additional uploads or production promotion.
-The initial approved hosted batch is limited to P0006 and P0045. Instrument
-scope is frozen at creation; local full-corpus validation is separate and may
-use a temporary workspace without archival. Publishing transfers the exact
-validated snapshot.
-
-Publisher code enforces testing-only manifests and explicit testing destinations.
-Its archive is `$MERMAID/publisher`, a separate local Git repository containing
-testing GeoCSV products and evidence under
-`geocsv/testing/{snapshots,staging,validation,publications}`, not original waveform
-archives. The local namespace is derived from `testing_only: true`. Initial
-workflow-testing artifacts may be retired through separately authorized cleanup
-after verification. They are not permanent scientific releases; bytes remain
-immutable until retirement and retired testing identities cannot be reused for
-different bytes. Production retention remains indefinite. Website private
-configuration and credentials remain outside both repositories.
-
-Cloudflare authority, website proxy/TLS, post-proxy email and scoped Python-client
-access were verified on 2026-10-22. DNSSEC was restored and independently
-verified on 2026-10-26. R2/Worker deployment
-and read-only SDK/HTTPS checks passed on 2026-10-23. The authorized two-instrument
-publication subsequently passed live conditional-write rejection, exact-byte
-HTTPS, cache, fetch and scientific checks on 2026-10-26. Full-corpus licensing
-remains pending. Historical schema-2 archive acceptance
-does not accept a migrated schema-3 candidate. Fresh full-corpus and separate
-P0006/P0045 schema-3 runs subsequently passed 43,365 and 3,292 original waveform pairs, respectively, and
-the current acceptance gates passed after the local testing-layout change. The
-full check remains temporary; only the selected candidate is in the publication
-archive. See the publisher’s [fresh findings](../../mermaid-publisher/docs/geocsv/schema3-findings.md).
-
-A subsequent local revalidation passed all 3,292 P0006/P0045 pairs and the
-acceptance gate with the publisher's frozen consumer `33ed5ff`. Its new report
-remains local; the already hosted immutable report records consumer `c1eb805`
-and was not replaced. No hosting deployment or pointer change was needed.
-See the publisher's [local revalidation findings](../../mermaid-publisher/docs/geocsv/schema3-findings.md#local-consumer-baseline-revalidation--2026-10-26).
-
-## SAC consumer refactor and verification
-
-Consumer 0.25.0 replaces its public `write_sac` with
-`associate(..., create_sac_header=True)`. The consumer creates ObsPy-default
-SAC headers plus stla/stlo/stel/stdp; users write with ObsPy Trace/Stream.write.
-The publisher owns final-waveform consistency, float32 storage and output
-verification, with an explicit [migration inventory](../../mermaid-publisher/docs/geocsv/sac-verification.md).
-Its former 0.24.0 baseline remains historical evidence; the active publisher
-requires consumer >= 0.27.0 and report schema 4, with unchanged scientific limits.
-
-This local source/documentation refactor changes no manifest format, fetch
-protocol, URLs, object bytes, caches, testing flags or Worker behavior. Existing
-Worker serving tests remain the hosting checks; scientific verification runs
-in the publisher. Historical 43,365/3,292-pair findings retain their original
-software provenance. Fresh acceptance is required before a future publication.
-All 11 local Worker tests pass with the bundled Node runtime. The updated
-landing-page wording is local until separately deployed; no live hosting
-verification or deployment is claimed for this refactor.
-
-## Hyphenated release paths — 2026-10-28
-
-Publisher 0.3.0 and consumer 0.26.0 use
-`2026-10-21T22-48-33.277Z` in release URLs, R2 keys and new local directories.
-Only the creation-timestamp time separators are replaced. GeoCSV contents,
-`#created`, manifest/provenance `release_id`, fractional digits and other
-timestamps remain unchanged. Latest pointers and convenience redirects must
-identify the hyphenated component. The initial P0006/P0045 test set is
-authorized for replacement, including retirement of its previous encoded URLs.
-Old clients cannot fetch the replacement timestamped collection; the fixed
-0.24.0 consumer remains historical evidence in the publisher.
-
-The Worker rejects old encoded/literal-colon release paths before reading its
-cache, so cached objects cannot keep retired test paths available through this
-service. New objects are verified before latest activation; prior test objects
-are retired only after replacement verification. Production remains inactive.
-
-The updated Worker and testing replacement were deployed and verified on
-2026-10-28. Worker version: `5c856ea5-34f0-43de-a414-f8faddc6a866`. All 13
-local Worker checks passed. Fresh scientific acceptance covered all 3,292 pairs;
-new objects and GET/HEAD bytes, flags, redirects, latest/pinned fetch and
-disk/memory/reuse passed live checks. Exactly four old testing release objects
-were then deleted, and old encoded URLs returned uncached 404. The receipt was
-recorded in scoped local archive commit `2b0f134`. No DNS change, production
-activation or software-repository push occurred. Landing-page wording remains
-local pending the normal static-site deployment.
-See the publisher's [path review and replacement evidence](../../mermaid-publisher/docs/geocsv/release-path-review.md).
-
-Public service identifiers: Worker `bathymetrix-geocsv`, route
-`bathymetrix.com/geocsv/*`, bucket binding `GEOCSV`, collection
-`https://bathymetrix.com/geocsv/testing/`, object prefix `geocsv/testing`.
-Account-specific endpoint/bucket configuration and credentials remain private.
-
-## Read-only serving workflow
-
-```mermaid
-flowchart LR
-    publisher["mermaid-publisher: gate, upload, check, activate latest"] --> r2["Private R2: isolated testing objects"]
-    r2 --> worker["workers/geocsv/src/index.js: GET/HEAD only"]
-    worker --> client["mermaid-geocsv.fetch: pin immutable snapshot"]
-    pages["GitHub Pages landing page"] --> client
-```
-
-## Worker deployment preparation
+Only the two creation-timestamp time-separator colons become hyphens in paths.
+JSON release identities retain the original spelling and fractional digits.
+Literal-colon and percent-encoded release components are rejected before cache
+lookup. There are no upload/admin routes, schema-dependent rewrites or aliases.
 
 ### Browser archive listings
 
-The Worker implements browser listings at `/geocsv/testing/` (also
-`/geocsv/testing/index.html` and `/geocsv/testing/releases/`) and
-`/geocsv/releases/` for the separate production collection. `/geocsv/`
-continues to serve the static overview, which links to both listings.
+Listings are available at `/geocsv/testing/`, `/geocsv/testing/index.html`,
+`/geocsv/testing/releases/` and the separate production `/geocsv/releases/`.
+They use paginated read-only R2 listing and manifests; directories without a
+manifest are omitted. Identity/path/collection flags must agree or return an
+uncached 503. Rows show exact snapshot creation UTC, collection status, latest
+selection and pinned manifest/payload links. A report link appears if present.
+Creation timestamps are not upload dates. Listings do not parse schemas or
+establish acceptance. They use no browser JavaScript and respond `no-store`.
+The static preview cannot generate these Worker-owned pages.
 
-Listings discover hosted release directories through paginated, read-only R2
-listing and read their manifests. Directories without a manifest are omitted.
-Manifest identity/path and testing flags must match the collection; inconsistent
-metadata returns an uncached 503. Each row shows the exact snapshot creation
-timestamp in UTC, collection status, the latest-pointer selection, and pinned
-manifest/instrument links. A validation-report link appears when that object
-exists. Snapshot dates do not represent upload dates. Historical payloads may
-use different schemas; listings do not parse or rewrite them.
+## Deployment and access constraints
 
-Listings are generated without browser JavaScript and use `no-store`, so newly
-available manifests and retired manifests are reflected on refresh. This is
-an inventory of available hosted snapshots, not a publication/acceptance gate;
-the publisher retains those responsibilities. No data objects, pointers or
-publication records are changed. Testing availability remains temporary.
-Deploy the changed Worker and static overview to make this feature live;
-the local static preview alone cannot generate archive listings.
+Use `workers/geocsv/wrangler.example.jsonc` as a portable template. Actual
+configuration, approved bucket/account settings, SDK credentials and DNS records
+remain in private locations outside checkouts. Resolve an external configuration's
+entry point relative to that file or use an absolute path. Keep public bucket
+URLs disabled and the Worker binding read-only. The SDK provider owns credentials.
+Do not print them or store them in repository files, including ignored files.
 
-### Deployment configuration
+Cloudflare is authoritative, DNSSEC is enabled, website TLS uses Full (strict),
+and GitHub Pages remains origin. Only the approved website hostnames are proxied;
+mail/service records retain their intended routing. The GeoCSV route requires
+proxied DNS. Python GET/HEAD clients require the scoped Browser Integrity Check
+exception for the collection; do not disable unrelated security controls.
+No zone-wide cache rule should override exact-byte, no-store or uncached-error
+behavior. Actual DNS inventories and account settings remain private.
 
-`workers/geocsv/wrangler.example.jsonc` is a portable deployment template. Keep
-actual configuration in an approved private location outside the checkout; supply the
-approved private bucket binding. When the configuration is outside this
-checkout, set its main entry point to an absolute path or a path relative to
-that external configuration file, rather than assuming the current directory.
-Keep public bucket URLs disabled. The existing
-`bathymetrix.com/geocsv/*` route covers both collection namespaces, retaining
-GitHub Pages as origin for the landing page and unrelated routes. There are no
-upload/admin routes. No publishing script is retained by this website.
+Before an authorized deployment, run Worker tests and review the external
+configuration, route and binding. After deployment verify static pass-through,
+GET/HEAD, testing flags, pointer isolation, immutable exact bytes and uncached
+misses using ordinary Python clients. Verify schema compatibility separately
+through public fetch/read APIs. A deployment does not authorize data upload.
 
-The updated Worker uses hyphenated creation-timestamp components directly in
-URLs and storage keys, streams uncompressed objects, and bypasses caches for
-latest/redirects. Literal colons and encoded release components are rejected
-before cache lookup; no legacy aliases or URL decoding are provided.
-It caches only successful immutable objects and honors no-cache verification.
-Deployment must preserve exact bytes, identity encoding, cache isolation and
-uncached misses. No generic zone cache rule should override these controls.
+### Recovery
 
-The approved deployment on 2026-10-23 activated the existing route and private
-bucket binding. Live checks confirmed storage access, expected uncached pointer
-and object misses, and unchanged landing-page bytes. No data objects or pointers
-were written. Successful-object testing labels, exact payload bytes, immutable
-caching and conditional writes were subsequently verified during the
-2026-10-26 publication; the 2026-10-28 path replacement also passed live checks. Deployment logs and verification
-evidence are retained privately outside the checkouts.
+Inspect live state before retries or activation recovery. A Worker fault can be
+isolated by removing its route or reverting website proxying while preserving
+GitHub Pages; either is an explicitly authorized infrastructure operation.
+DNS-provider rollback requires compatible DNSSEC/DS state and verification of
+website, redirects and mail after resolver caches expire. Do not restore an
+incompatible DS record. Data rollback changes only a separately authorized latest
+pointer after verification; immutable snapshots are never rewritten.
 
-## DNS onboarding and remaining activation steps
+## Verification
 
-Cloudflare authoritative DNS onboarding and website proxy activation are
-complete as of 2026-10-22. All imported records were compared with Squarespace
-and confirmed to match. Full (strict) is configured and only apex/www website
-records are proxied; email and other service records remain unchanged. DNSSEC
-was restored and verified on 2026-10-26. Squarespace remains registrar and GitHub
-Pages remains the website origin.
-
-Public checks confirmed Cloudflare authority through two independent recursive
-resolvers. Before proxy activation, origin-path HTTPS checks passed. After
-activation, apex/www HTTPS validated successfully through Cloudflare, HTTP and
-`www` redirected to apex HTTPS without loops, and Home, About, Work and Contact
-returned 200 with Cloudflare edge responses. The Active Universal certificate
-covers apex/www. Fresh post-proxy email sending and receiving both passed.
-
-Browser Integrity Check initially blocked ordinary Python urllib requests
-under `/geocsv/` with 403. Cloudflare Security Events identified the blocking
-feature. A configuration rule now disables only
-[Browser Integrity Check](https://developers.cloudflare.com/waf/tools/browser-integrity-check/)
-for GET/HEAD requests on the collection's apex/www hostnames under `/geocsv/`.
-Other paths and security settings retain their existing policy. Keep actual
-rule configuration and account-specific records outside the repository.
-
-Post-deployment checks on 2026-10-22 passed with the normal Python user agent and
-identity encoding: GET and HEAD returned 200 for `/geocsv/` and 404 for the
-unpublished `/geocsv/latest.json`, on both apex and www. The unmodified
-`geocsv.fetch` client reached that expected manifest 404 rather than a security
-403. These early checks verified edge access. Complete unmodified client and
-publisher verification subsequently passed against the authorized P0006/P0045
-testing snapshot on 2026-10-26; production data publication remains unauthorized.
-
-The landing page now publishes the testing scope, MH network citation and
-initial-artifact retirement notice; the live page was verified on 2026-10-26.
-The initial testing upload, acceptance rechecks, publication transport and
-complete hosted workflow verification are complete. See the publisher's
-[publication findings](../../mermaid-publisher/docs/geocsv/schema3-findings.md#initial-hosted-testing-publication--2026-10-26).
-DNSSEC restoration was completed through separately authorized Cloudflare
-signing and publication of the matching DS record through Squarespace on
-2026-10-26. Google and Cloudflare validating resolvers authenticated the DS,
-DNSKEY, website-address and mail-routing answers. Apex/www HTTPS and redirects,
-testing metadata, and exact size/SHA-256 checks of both hosted GeoCSV payloads
-passed afterward. Email sending and receiving also passed. Production data
-activation separately requires current scientific acceptance and explicit
-authorization.
-Each infrastructure change requires explicit coordination.
-
-Keep actual zone exports, inventories, account context and deployment
-configuration outside this repository in an approved private location; use
-placeholders in repository procedures. The procedure below retains the completed
-onboarding, website proxy and scoped client-access steps for reference.
-R2/Worker deployment, landing-page publication and end-to-end testing downloads
-in step 7 are complete.
-
-1. **Inventory and baseline.** Export the complete existing zone from Squarespace.
-   Save apex/www website records, MX priorities, SPF, DKIM selectors, DMARC,
-   verification TXT, CAA, SRV, wildcard and other service records with TTLs. Note
-   actual registrar DS/DNSSEC state separately. Confirm GitHub Pages custom
-   domain, HTTPS certificate, apex/www redirects, current pages, and email
-   send/receive behavior. Preserve GitHub ownership verification records.
-2. **Prepare Cloudflare without changing nameservers.** Add the existing domain
-   as a full zone. Import and compare every record against the export, including
-   email and service records automatic scanning may miss. Keep all records
-   DNS-only initially, especially MX and mail-related A/CNAME records. Leave the
-   registrar and GitHub Pages custom-domain configuration unchanged. Do not
-   invent apex A records or substitute a guessed CNAME target.
-3. **Handle DNSSEC.** If a DS record exists, use a coordinated DNSSEC migration or
-   remove/disable the old DS at the registrar and wait until public validation
-   confirms it is gone before switching providers. Do not switch to unrelated
-   nameservers while an old DS chain remains. Retain the old zone and record
-   values for recovery. See Cloudflare's full-setup guidance below.
-4. **Review the proposed change.** Record Cloudflare's assigned nameservers,
-   the complete compared record set, current/target proxy settings, DNSSEC steps,
-   TTL/propagation expectations, and rollback steps. Obtain explicit authorization
-   before changing live DNS or deploying the Worker.
-5. **Approved migration only.** Change authoritative nameservers at Squarespace
-   to the assigned Cloudflare pair. Keep GitHub Pages as origin and start DNS-only.
-   Confirm authority and answers from multiple resolvers, website TLS/redirects,
-   and email. Preserve the prior zone during propagation; allow for cached TTLs.
-6. **Verify TLS and enable only the website proxy.** Confirm an Active
-   [edge certificate](https://developers.cloudflare.com/ssl/edge-certificates/universal-ssl/enable-universal-ssl/)
-   covering apex/www in Cloudflare. DNS-only HTTPS does not test that certificate.
-   Configure [Full (strict)](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/)
-   after confirming the GitHub Pages origin has a valid matching certificate.
-   Then enable proxying only for the website hostname records needed for the
-   Worker. Recheck apex/www TLS, redirects, main pages and email send/receive.
-   Email/service records remain DNS-only. If origin TLS or loops fail, revert
-   the website records to DNS-only while diagnosing.
-7. **Approved hosting deployment.** Create the private bucket and least-privilege
-   operator access, set the read binding, deploy the Worker route, and ship the
-   landing page via the normal GitHub Pages workflow. Test routing, streaming,
-   no-cache latest, 404 then object availability, and identity encoding before
-   any production activation. Do not publish illustrative fixtures as
-   production data or upload real data without the acceptance report.
-8. **Restore DNSSEC.** After the migration is stable, enable Cloudflare DNSSEC,
-   install its new DS at Squarespace, and verify the new chain. Do not reuse the
-   old provider's DS. Recheck website and email after enabling validation.
-9. **Recovery.** A Worker fault can be isolated by removing its route or making
-   website records DNS-only, preserving GitHub Pages. Returning nameservers to
-   the previous provider requires first removing any incompatible Cloudflare DS,
-   waiting for that change, and restoring the preserved old zone/valid DNSSEC
-   chain. Keep both zones consistent while resolver caches expire. Data rollback
-   changes only the latest pointer after verification, never immutable releases.
-
-Official references checked for this implementation:
-
-- [Worker routes and proxied DNS](https://developers.cloudflare.com/workers/configuration/routing/routes/)
-- [Full DNS setup and DNSSEC](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/)
-- [R2 Worker streaming API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/)
-- [Atomic conditional S3 writes](https://developers.cloudflare.com/r2/api/s3/extensions/)
-
-## Verification and remaining hosting work
+From the repository root:
 
 ```bash
 cd workers/geocsv
-node --test test/worker.test.js
+node --test test/*.test.js
 ```
 
-Worker tests cover streaming, encoding, cache behavior, isolated testing
-pointers/objects/redirects and flag rejection. Scientific and publisher tests
-run in `mermaid-publisher`; none are duplicated here.
+Tests cover streaming, identity encoding, exact bytes, caching, collection
+isolation, flags, pointer/manifest consistency, redirects, listings, HEAD and
+write rejection. Scientific/publication tests belong to the publisher.
+For read-only live checks, request testing latest, fetch its manifest-pinned
+payloads, verify hashes and parse with the current consumer. Check production
+latest separately. Do not infer deployed behavior from local source alone.
 
-- [x] Deploy the hyphenated release-path Worker, replace and verify the
-  P0006/P0045 testing set, and retire its old URLs/objects (2026-10-28).
-- [x] Separate read-only hosting from the publisher workflow and contract.
-- [x] Implement local testing namespace isolation and explicit response labeling.
-- [x] Complete DNS authority, proxy/TLS, email and scoped Python-client checks.
-- [x] Limit hosted testing to P0006/P0045 and prepare the MH network citation.
-- [x] Obtain fresh schema-3 acceptance for the selected candidate.
-- [x] Publish and verify the testing scope, citation and retirement notice before
-  data uploads (2026-10-26). Full-corpus licensing remains deferred.
-- [x] Deploy approved private R2/Worker configuration and verify SDK access,
-  conditional immutable-create rejection and stale latest-write rejection.
-- [x] Verify landing-page routing, GET/HEAD, no-store errors, identity encoding
-  and www-to-apex routing before the initial upload.
-- [x] Publish exactly the accepted P0006/P0045 snapshot and record its receipt
-  and scoped local archive commit (2026-10-26).
-- [x] Verify exact deployed bytes, cache hits, misses, testing flags and pointer isolation.
-- [x] Verify pinned/latest fetch, one/all instruments, memory/disk, local reuse
-  and complete scientific use: all 3,292 original pairs passed with hosted bytes.
-- [x] Restore and independently verify DNSSEC, HTTPS/downloads and email
-  sending/receiving after hosting verification (2026-10-26).
-
-All deployment and remote publication require explicit authorization. Production
-promotion and first formal release remain separately unauthorized.
-
-## Schema 1.0.0 payload rules
-
-The [payload specification](../../mermaid-geocsv/docs/format-spec.md) requires
-explicit zero Recording Elevation and preserves finite signed pressure-sensor
-readings, including gauge error. Recording pressure and crossing proxies remain
-nonnegative. The site performs no interpretation, clamping or schema-dependent
-rewriting. Manifest fields, literal release IDs, token IDs, all fractional digits,
-the two-colon path transformation, immutable objects and testing isolation remain
-unchanged. Local tests establish local serving behavior only; production is inactive.
+Primary references: [Worker routes](https://developers.cloudflare.com/workers/configuration/routing/routes/),
+[Full strict TLS](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/),
+[R2 Worker API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/) and
+[conditional S3 writes](https://developers.cloudflare.com/r2/api/s3/extensions/).
