@@ -33,7 +33,9 @@ function setup() {
       // One prefix per page exercises R2 cursor handling.
       const offset = Number(options.cursor || 0);
       const truncated = offset + 1 < directories.length;
-      return { delimitedPrefixes: directories.slice(offset, offset + 1), truncated,
+      return { objects: [...data.keys()].filter(key => key.startsWith(options.prefix)
+          && !key.slice(options.prefix.length).includes("/")).map(key => ({ key })),
+        delimitedPrefixes: directories.slice(offset, offset + 1), truncated,
         ...(truncated ? { cursor: String(offset + 1) } : {}) };
     },
   } };
@@ -218,8 +220,8 @@ test("archive lists all hosted manifests newest first with exact timestamps and 
   assert.match(html, /validation\.json">validation\.json/);
   assert.doesNotMatch(html, /<table|<details/);
   assert.doesNotMatch(html, /incomplete/);
-  assert.equal(state.listings.length, 3);
-  assert.ok(state.listings.every(options => options.prefix === "geocsv/testing/releases/" && options.delimiter === "/"));
+  assert.equal(state.listings.filter(options => options.prefix === "geocsv/testing/releases/").length, 3);
+  assert.ok(state.listings.every(options => options.prefix.startsWith("geocsv/testing/releases/") && options.delimiter === "/"));
   assert.ok(state.reads.every(key => key.startsWith("geocsv/testing/")));
   assert.equal(state.entries.size, 0);
 });
@@ -334,7 +336,7 @@ test("release directories are plain pinned file trees without a latest pointer",
   assert.match(html, new RegExp(`href="${path}manifest.json"`));
   assert.match(html, new RegExp(`href="${path}validation.json"`));
   assert.doesNotMatch(html, /MERMAID\.geocsv\.tar\.gz|<table|<details/);
-  assert.equal(state.listings.length, 0);
+  assert.equal(state.listings.length, 1);
   state.data.set(directory + "MERMAID.geocsv.tar.gz", "bundle");
   html = await (await state.request(path)).text();
   assert.match(html, new RegExp(`href="${path}MERMAID.geocsv.tar.gz"`));
@@ -350,4 +352,27 @@ test("release directories are plain pinned file trees without a latest pointer",
   assert.equal((await state.request(`/geocsv/releases/${releasePath}/`)).headers.get("X-MERMAID-Testing"), null);
   const bundle = await state.request(path + "MERMAID.geocsv.tar.gz");
   assert.equal(bundle.headers.get("X-MERMAID-Testing"), "true");
+});
+
+
+test("publication diffs and mapping CSV are exact immutable objects and listed", async () => {
+  const state = setup();
+  const files = {
+    'P0006.mapping.csv': 'geocsv_line_number,mseed_filename(s)\n111,first.mseed,repeat.mseed\n',
+    'P0006.diff': '+100,Derivation:Recording:automaid-vtest,...\n',
+    'comparison.json': '{"schema_version":1}\n',
+    'REMOVED.diff': '-0,removed source row\n',
+  };
+  for (const [name, body] of Object.entries(files)) {
+    state.data.set(prefix + name, body);
+    const response = await state.request(`/geocsv/releases/${releasePath}/${name}`);
+    assert.equal(response.status, 200);
+    assert.equal(await response.text(), body);
+    assert.match(response.headers.get('Cache-Control'), /immutable/);
+    const head = await state.request(`/geocsv/releases/${releasePath}/${name}`, { method: 'HEAD' });
+    assert.equal(head.headers.get('Content-Length'), String(Buffer.byteLength(body)));
+    assert.equal(await head.text(), '');
+  }
+  const listing = await (await state.request(`/geocsv/releases/${releasePath}/`)).text();
+  for (const name of Object.keys(files)) assert.ok(listing.includes(name));
 });

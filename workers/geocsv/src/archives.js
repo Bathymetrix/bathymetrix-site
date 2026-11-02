@@ -28,7 +28,28 @@ export async function archivePage(bucket, root, latest, validRelease, releaseCom
         || manifest.files.some(file => !/^[A-Za-z0-9][A-Za-z0-9._-]*\.geocsv$/.test(file.filename))) {
       throw new Error("Invalid archive manifest");
     }
-    return { ...manifest, validation: Boolean(await bucket.head(`${directory}validation.json`)),
+    const reportNames = ['comparison.json', ...manifest.files.flatMap(file => {
+      const id = file.filename.slice(0, -'.geocsv'.length);
+      return [`${id}.mapping.csv`, `${id}.diff`];
+    })];
+    const reports = [];
+    for (const name of reportNames) {
+      if (await bucket.head(`${directory}${name}`)) reports.push(name);
+    }
+    // Include diffs for instruments removed from the new manifest. Listing
+    // inventories stored objects; it does not interpret comparison evidence.
+    let reportCursor;
+    do {
+      const page = await bucket.list({ prefix: directory, delimiter: "/",
+        ...(reportCursor ? { cursor: reportCursor } : {}) });
+      for (const object of page.objects || []) {
+        const name = object.key.slice(directory.length);
+        if (/^[A-Za-z0-9][A-Za-z0-9._-]*\.(diff|mapping\.csv)$/.test(name)
+            && !reports.includes(name)) reports.push(name);
+      }
+      reportCursor = page.truncated ? page.cursor : undefined;
+    } while (reportCursor);
+    return { ...manifest, reports, validation: Boolean(await bucket.head(`${directory}validation.json`)),
       bundle: Boolean(await bucket.head(`${directory}MERMAID.geocsv.tar.gz`)) };
   }
   if (selectedComponent !== null) {
@@ -49,7 +70,7 @@ export async function archivePage(bucket, root, latest, validRelease, releaseCom
   }
 
   function filenames(snapshot) {
-    return [...snapshot.files.map(file => file.filename), "manifest.json",
+    return [...snapshot.files.map(file => file.filename), "manifest.json", ...snapshot.reports,
       ...(snapshot.validation ? ["validation.json"] : []),
       ...(snapshot.bundle ? ["MERMAID.geocsv.tar.gz"] : [])].sort();
   }

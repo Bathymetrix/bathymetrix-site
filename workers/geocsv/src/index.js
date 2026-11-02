@@ -35,7 +35,7 @@ export function releaseKey(pathname) {
   const filename = match[3];
   if (!component.test(release)) return null;
   if (!component.test(filename)
-      || !(filename.endsWith(".geocsv") || ["manifest.json", "validation.json", "MERMAID.geocsv.tar.gz"].includes(filename))) return null;
+      || !(filename.endsWith(".geocsv") || filename.endsWith(".mapping.csv") || filename.endsWith(".diff") || ["manifest.json", "validation.json", "comparison.json", "MERMAID.geocsv.tar.gz"].includes(filename))) return null;
   return `geocsv/${match[1] || ""}releases/${release}/${filename}`;
 }
 
@@ -117,7 +117,7 @@ export async function handle(request, env, ctx, dependencies = {}) {
     object.writeHttpMetadata(headers);
     headers.delete("Content-Encoding"); // Publisher stores uncompressed, exact bytes.
     const bundle = key.endsWith("/MERMAID.geocsv.tar.gz");
-    headers.set("Content-Type", bundle ? "application/gzip" : key.endsWith(".json") ? "application/json; charset=utf-8" : "text/csv; charset=utf-8");
+    headers.set("Content-Type", bundle ? "application/gzip" : key.endsWith(".json") ? "application/json; charset=utf-8" : key.endsWith(".diff") ? "text/plain; charset=utf-8" : "text/csv; charset=utf-8");
     if (bundle) headers.set("Content-Disposition", 'attachment; filename="MERMAID.geocsv.tar.gz"');
     headers.set("Content-Length", String(object.size));
     headers.set("ETag", object.httpEtag);

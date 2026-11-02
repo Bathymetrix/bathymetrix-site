@@ -12,7 +12,8 @@ APIs belong to the consumer. Hosting never interprets or rewrites scientific dat
 
 Testing latest selects P0006/P0045 schema 1.0.0 snapshot
 `2026-10-30T18:08:32.316000Z`, compatible with consumer >= 0.27.0.
-Production latest is absent. The Worker and browser archive listings are live.
+Production latest is absent. The deployed Worker serves the existing testing snapshot. New report routes
+and directory changes in this checkout require separate deployment verification.
 The [publication record](../../mermaid-publisher/docs/geocsv/schema1-testing-publication.md)
 identifies accepted artifact hashes and the receipt; other retained snapshots
 can use unsupported schemas. A successful download does not establish parser
@@ -63,7 +64,7 @@ lookup. There are no upload/admin routes, schema-dependent rewrites or aliases.
 
 ### Browser archive listings
 
-Listings are available at `/geocsv/testing/`, `/geocsv/testing/index.html`,
+Listing routes implemented in this checkout are `/geocsv/testing/`, `/geocsv/testing/index.html`,
 `/geocsv/testing/releases/` and the separate production `/geocsv/releases/`.
 They use paginated read-only R2 listing and manifests; directories without a
 manifest are omitted. Identity/path/collection flags must agree or return an
@@ -134,3 +135,17 @@ Primary references: [Worker routes](https://developers.cloudflare.com/workers/co
 [Full strict TLS](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/),
 [R2 Worker API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/) and
 [conditional S3 writes](https://developers.cloudflare.com/r2/api/s3/extensions/).
+
+## Mapping and snapshot-diff routes
+
+Local Worker support serves {instrument}.mapping.csv, {instrument}.diff, and
+comparison.json at immutable release paths with GET/HEAD, exact bytes and the
+existing cache policy. Diffs use text/plain; mappings use text/csv. Release pages
+link available reports. The publisher owns their generation, checksums and
+activation policy; see its publication-reports.md contract. No Metadata Changes
+page, deployment, upload or new scientific acceptance is part of this change.
+
+Read-only HTTPS verification on 2026-11-02: testing collection listing and latest
+returned 200; the per-release directory URL for the selected 2026-10-30 snapshot
+returned 404. The deployed collection listing did not contain the new directory
+tree or comparison.json. New source routes and report links remain undeployed.
