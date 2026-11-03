@@ -11,10 +11,13 @@ APIs belong to the consumer. Hosting never interprets or rewrites scientific dat
 ## Current service
 
 Testing latest selects P0006/P0045 schema 1.0.0 snapshot
-`2026-10-30T18:08:32.316000Z`, compatible with consumer >= 0.27.0.
-Production latest is absent. The deployed Worker serves the existing testing snapshot. New report routes
-and directory changes in this checkout require separate deployment verification.
-The [publication record](../../mermaid-publisher/docs/geocsv/schema1-testing-publication.md)
+`2026-11-03T22:29:17.981000Z`, compatible with consumer >= 0.28.0.
+Production latest is absent. The Worker deployment on 2026-11-03 includes bundle,
+mapping/diff and comparison routes, directory trees and per-release pages.
+Live GET/HEAD and pinned-download verification passed. The separately authorized
+snapshot publication verified the bundle, payloads, manifest, validation and
+auxiliary reports before activating the new testing latest.
+The [publication record](../../mermaid-publisher/docs/geocsv/testing-publication-20261103.md)
 identifies accepted artifact hashes and the receipt; other retained snapshots
 can use unsupported schemas. A successful download does not establish parser
 compatibility. No snapshot retirement is part of documentation maintenance.
@@ -48,7 +51,7 @@ remain bound to their original inputs and software.
 The Worker accepts only GET/HEAD. It serves isolated collection-relative
 `latest.json`, `latest/<instrument>.geocsv` temporary 302 redirects, and
 `releases/<component>/{manifest.json,validation.json,<instrument>.geocsv}`.
-Local bundle support adds the exact `MERMAID.geocsv.tar.gz` filename, served
+Deployed bundle support adds the exact `MERMAID.geocsv.tar.gz` filename, served
 as `application/gzip` with an attachment filename and no HTTP content encoding.
 Its stored gzip bytes retain the immutable/no-transform policy.
 Latest and redirect responses bypass caches. Successful immutable objects use
@@ -68,7 +71,7 @@ Listing routes implemented in this checkout are `/geocsv/testing/`, `/geocsv/tes
 `/geocsv/testing/releases/` and the separate production `/geocsv/releases/`.
 They use paginated read-only R2 listing and manifests; directories without a
 manifest are omitted. Identity/path/collection flags must agree or return an
-uncached 503. Locally implemented pages use a plain clickable directory tree,
+uncached 503. Deployed pages use a plain clickable directory tree,
 with exact release components and a latest marker. Each
 `releases/<component>/` URL opens its own file tree, independent of latest.
 Instrument links come from the manifest; validation and bundle links appear
@@ -77,9 +80,9 @@ only when the corresponding objects exist. Missing release manifests return
 JavaScript and respond `no-store`. The static preview cannot generate these
 Worker-owned pages.
 
-The directory-tree, per-release page and bundle changes are local and not yet
-deployed. Existing hosted snapshots have no automatic bundle backfill.
-Deployment and bundle uploads require explicit authorization. The publisher
+Directory-tree, per-release page, bundle and auxiliary-report routes were
+deployed on 2026-11-03. Existing hosted snapshots have no automatic bundle or
+report backfill. Further deployments and uploads require explicit authorization. The publisher
 builds and records bundles; this Worker serves existing objects only.
 
 ## Deployment and access constraints
@@ -104,6 +107,31 @@ configuration, route and binding. After deployment verify static pass-through,
 GET/HEAD, testing flags, pointer isolation, immutable exact bytes and uncached
 misses using ordinary Python clients. Verify schema compatibility separately
 through public fetch/read APIs. A deployment does not authorize data upload.
+
+### Deployment commands
+
+`MERMAID_PUBLISHER_GEOCSV_CONFIG` names the private configuration directory.
+The site deployment commands read `wrangler.jsonc` from that directory; the
+publisher separately reads `r2.json` and `instruments.csv`. The Worker name,
+route, binding and approved storage destination must be checked before deploying.
+The supplied configuration remains outside this checkout. Its `main` can point
+to the Worker source; the commands explicitly select this checkout's entry point.
+
+Use a supported Node.js LTS runtime (Node >= 22) and the pinned Wrangler version:
+
+```bash
+cd workers/geocsv
+npm ci
+npm test
+npm run deploy:plan
+```
+
+The plan compiles and checks the Worker without uploading it. After explicit
+deployment authorization, run `npm run deploy`. It reruns the tests and uses
+Wrangler's strict conflict check. Both commands require the directory variable
+and disable automatic project reconfiguration. They do not publish snapshots
+or activate a data pointer. Keep configuration-bearing deployment logs private
+and outside repository files; do not paste their values into public evidence.
 
 ### Recovery
 
@@ -138,17 +166,34 @@ Primary references: [Worker routes](https://developers.cloudflare.com/workers/co
 
 ## Mapping and snapshot-diff routes
 
-Local Worker support serves {instrument}.mapping.csv, {instrument}.diff, and
+The deployed Worker supports {instrument}.mapping.csv, {instrument}.diff, and
 comparison.json at immutable release paths with GET/HEAD, exact bytes and the
 existing cache policy. Diffs use text/plain; mappings use text/csv. Release pages
 link available reports. The publisher owns their generation, checksums and
-activation policy; see its publication-reports.md contract. No Metadata Changes
-page, deployment, upload or new scientific acceptance is part of this change.
+activation policy; see its publication-reports.md contract. A Metadata Changes
+website page is outside this implementation scope.
 
 Read-only HTTPS verification on 2026-11-02: testing collection listing and latest
 returned 200; the per-release directory URL for the selected 2026-10-30 snapshot
 returned 404. The deployed collection listing did not contain the new directory
-tree or comparison.json. New source routes and report links remain undeployed.
+tree or comparison.json. Those observations predate the 2026-11-03 deployment.
+
+Read-only HTTPS verification after the 2026-11-03 deployment, before publication: the testing listing,
+selected release directory and static GeoCSV overview returned 200. Release
+directory GET/HEAD, testing flags, no-store pointers/listings and immutable
+manifest headers passed. Existing manifest and validation bytes matched their
+publication receipt; pinned fetch verified both payload hashes and the current
+consumer parsed 20,345 P0006 rows and 124,022 P0045 rows. Production latest and
+the unpublished new snapshot remained absent. An ordinary Python request to
+the homepage returned 403 outside this Worker's route; the GeoCSV overview
+pass-through returned 200. No broader security settings were changed.
+
+After the separately authorized 2026-11-03 snapshot publication, testing latest
+selected `2026-11-03T22:29:17.981000Z`. Exact public bundle and report bytes
+matched the receipt and local archive; bundle members matched the manifest.
+Latest and pinned consumer downloads parsed 20,345 P0006 rows and 124,016 P0045
+rows. The release directory linked the bundle and all auxiliary reports.
+The previous public manifest remained byte-identical; production stayed inactive.
 
 Automaid v4.9.2 collects measurements from Init and IcCycle while excluding their
 Recording and crossing rows. Normal GeoCSV output is bounded by the deployment
@@ -157,3 +202,7 @@ evidence and is not hosted. Publisher validation independently checks GPS
 bracketing and excludes Init/IcCycle waveform paths. Hosting continues to serve
 exact immutable bytes; it never filters rows from existing objects. This scope
 update does not establish regeneration, acceptance, uploads or deployment.
+
+Published exact diffs retain automaid producer-revision updates. When those
+are the only row changes, the publisher does not require a metadata override;
+other edits or deletions remain gated. Hosting does not interpret that policy.

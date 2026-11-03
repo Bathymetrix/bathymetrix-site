@@ -2,5 +2,11 @@
   "name": "bathymetrix-geocsv-worker",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node --test test/*.test.js" }
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "deploy:plan": "wrangler deploy \"$PWD/src/index.js\" --config \"${MERMAID_PUBLISHER_GEOCSV_CONFIG:?Set MERMAID_PUBLISHER_GEOCSV_CONFIG to the private configuration directory}/wrangler.jsonc\" --dry-run --no-autoconfig",
+    "deploy": "npm test && wrangler deploy \"$PWD/src/index.js\" --config \"${MERMAID_PUBLISHER_GEOCSV_CONFIG:?Set MERMAID_PUBLISHER_GEOCSV_CONFIG to the private configuration directory}/wrangler.jsonc\" --no-autoconfig --strict"
+  },
+  "engines": { "node": ">=22" },
+  "devDependencies": { "wrangler": "4.157.0" }
 }
