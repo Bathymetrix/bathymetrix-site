@@ -149,3 +149,8 @@ Read-only HTTPS verification on 2026-11-02: testing collection listing and lates
 returned 200; the per-release directory URL for the selected 2026-10-30 snapshot
 returned 404. The deployed collection listing did not contain the new directory
 tree or comparison.json. New source routes and report links remain undeployed.
+
+The producer/publisher IcCycle/Init exclusion (automaid v4.9.1 / publisher 0.6.1)
+applies to future source generations and validation. Hosting continues to serve
+exact immutable bytes; it never filters rows from existing objects. This scope
+update does not establish regeneration, acceptance, uploads or deployment.
