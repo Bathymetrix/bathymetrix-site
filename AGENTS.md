@@ -95,7 +95,7 @@ explicit authorization. Production retention remains indefinite.
 
 ## GeoCSV payload and service contract
 
-`../mermaid-geocsv/docs/format-spec.md` defines payload schema 1.0.0.
+`../mermaid-geocsv/docs/format-spec.md` defines the dataset-first payload schema 1.0.0-rc1.
 The publisher's `docs/geocsv/contract.md` defines manifests, paths, exact bytes
 and activation boundaries. This site serves bytes without schema-dependent
 rewriting or source-value defaults. Retained snapshots can have unsupported

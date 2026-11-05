@@ -11,7 +11,8 @@ APIs belong to the consumer. Hosting never interprets or rewrites scientific dat
 ## Current service
 
 Testing latest selects P0006/P0045 schema 1.0.0 snapshot
-`2026-11-03T22:29:17.981000Z`, compatible with consumer >= 0.28.0.
+`2026-11-03T22:29:17.981000Z`, readable by consumer 0.28.0. The dataset-first consumer >= 0.29.0 rejects
+that old header; no rc1 payload has been published.
 Production latest is absent. The Worker deployment on 2026-11-03 includes bundle,
 mapping/diff and comparison routes, directory trees and per-release pages.
 Live GET/HEAD and pinned-download verification passed. The separately authorized
@@ -212,3 +213,17 @@ update does not establish regeneration, acceptance, uploads or deployment.
 Published exact diffs retain automaid producer-revision updates. When those
 are the only row changes, the publisher does not require a metadata override;
 other edits or deletions remain gated. Hosting does not interpret that policy.
+
+## PPHC header and testing schema
+
+The writer emits dataset-first GeoCSV 2.0 with `schema: MERMAID GeoCSV
+v1.0.0-rc1`, padded comment keywords, unquoted comma/LF declarations and
+producer/publisher/hoster/consumer project descriptions. `references` is reserved
+for the describing paper and omitted until its DOI exists. Final schema 1.0.0
+is reserved for paper publication. Testing accepts the 1.0.0 version family,
+retains the exact revision and applies all scientific requirements.
+
+This header requires consumer >= 0.29.0 and publisher >= 0.8.0. Existing hosted
+snapshots retain their original old header; fetch can retrieve their exact bytes,
+but the dataset-first reader rejects them. No upload, activation or retirement
+is implied by local candidate validation. Canonical sources remain read-only.

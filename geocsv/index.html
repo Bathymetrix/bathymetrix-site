@@ -69,12 +69,12 @@
     select one release for the whole operation. A specific release can be
     requested again without relying on whichever release is latest.</p>
   <p>Snapshot creation, scientific validation and publication are maintained by
-    the separate mermaid-publisher project. Test downloads will use the isolated
-    <code>/geocsv/testing/</code> collection. The replacement testing collection
-    uses the historical mermaid-geocsv 0.26.0 format. The locally implemented
-    schema 1.0.0 reader (0.27.0) requires new payloads that are not yet hosted. Release paths and download directories
-    use hyphens in place of creation-timestamp colons; original timestamps remain
-    unchanged in the metadata.</p>
+    the separate mermaid-publisher project. Testing downloads use the isolated
+    <code>/geocsv/testing/</code> collection. Existing published payloads retain
+    their previous header, readable by mermaid-geocsv 0.28.0. The dataset-first
+    schema <code>1.0.0-rc1</code> reader requires mermaid-geocsv 0.29.0 or newer;
+    no rc1 snapshot has been published. Release paths use hyphens in place of
+    creation-timestamp colons; literal identities remain unchanged in metadata.</p>
   <p>Once production access is authorized and published, Python access will use:</p>
   <pre style="overflow-x: auto;"><code>from mermaid import geocsv
 
