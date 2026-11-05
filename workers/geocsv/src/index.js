@@ -77,6 +77,12 @@ export async function handle(request, env, ctx, dependencies = {}) {
         headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_CACHE, ...testingHeaders },
       });
     }
+    if (url.pathname === `${collectionRoot}latest/`) {
+      const selected = await pointer(env.GEOCSV, collectionRoot);
+      if (!selected) return message("No release published", 404);
+      const location = new URL(`releases/${releaseComponent(selected.value.release_id)}/`, new URL(collectionRoot, url));
+      return new Response(null, { status: 302, headers: { Location: location.href, "Cache-Control": NO_CACHE, ...testingHeaders } });
+    }
     if (url.pathname === `${collectionRoot}latest.json`) {
       const selected = await pointer(env.GEOCSV, collectionRoot);
       if (!selected) return message("No release published", 404);

@@ -112,6 +112,32 @@ test("latest convenience URL is a temporary hyphenated release redirect", async 
   assert.equal((await state.request("/geocsv/latest/N0001.geocsv")).status, 404);
 });
 
+test("latest directory redirects browsers and HEAD to the current isolated release without caching", async () => {
+  const state = setup();
+  for (const testing of [false, true]) {
+    const root = testing ? "/geocsv/testing/" : "/geocsv/";
+    const key = `${root.slice(1)}latest.json`;
+    for (const id of [release, "2026-11-03T22:29:17.981000Z"]) {
+      const selectedPath = id.replaceAll(":", "-");
+      state.data.set(key, JSON.stringify({ release_id: id, testing_only: testing, manifest: `releases/${selectedPath}/manifest.json` }));
+      for (const method of ["GET", "HEAD"]) {
+        const response = await state.request(`${root}latest/`, { method });
+        assert.equal(response.status, 302);
+        assert.equal(response.headers.get("Location"), `https://bathymetrix.com${root}releases/${selectedPath}/`);
+        assert.match(response.headers.get("Cache-Control"), /no-store/);
+        assert.equal(response.headers.get("X-MERMAID-Testing"), testing ? "true" : null);
+        assert.equal(await response.text(), "");
+      }
+    }
+    assert.equal((await state.request(`${root}latest/`, { method: "POST" })).status, 405);
+    state.data.delete(key);
+    assert.equal((await state.request(`${root}latest/`)).status, 404);
+    state.data.set(key, JSON.stringify({ release_id: release, testing_only: !testing, manifest: `releases/${releasePath}/manifest.json` }));
+    assert.equal((await state.request(`${root}latest/`)).status, 503);
+  }
+  assert.equal(state.entries.size, 0);
+});
+
 test("HEAD has content metadata and no body; POST is rejected", async () => {
   const state = setup();
   const response = await state.request(`/geocsv/releases/${releasePath}/P0006.geocsv`, { method: "HEAD" });

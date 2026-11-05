@@ -49,7 +49,7 @@ remain bound to their original inputs and software.
 ## Routes and bytes
 
 The Worker accepts only GET/HEAD. It serves isolated collection-relative
-`latest.json`, `latest/<instrument>.geocsv` temporary 302 redirects, and
+`latest.json`, `latest/` and `latest/<instrument>.geocsv` temporary 302 redirects, and
 `releases/<component>/{manifest.json,validation.json,<instrument>.geocsv}`.
 Deployed bundle support adds the exact `MERMAID.geocsv.tar.gz` filename, served
 as `application/gzip` with an attachment filename and no HTTP content encoding.
@@ -59,11 +59,17 @@ Latest and redirect responses bypass caches. Successful immutable objects use
 cached. `Cache-Control: no-cache` or `no-store` forces a storage read for
 verification. HEAD returns object metadata without a body. Payloads are stored
 uncompressed, streamed without transformation and served with exact byte counts.
+The browser URL `https://bathymetrix.com/geocsv/testing/latest/` redirects to
+the currently selected release directory. The redirect follows the isolated
+latest pointer on every request; an absent pointer returns 404.
+Deployed and verified on 2026-11-04: GET/HEAD returned an uncached 302 to the
+selected testing directory, and following the redirect returned 200 with
+instrument files and the bundle. Production `latest/` remained 404.
 
 Only the two creation-timestamp time-separator colons become hyphens in paths.
 JSON release identities retain the original spelling and fractional digits.
 Literal-colon and percent-encoded release components are rejected before cache
-lookup. There are no upload/admin routes, schema-dependent rewrites or aliases.
+lookup. There are no upload/admin routes or schema-dependent rewrites.
 
 ### Browser archive listings
 
