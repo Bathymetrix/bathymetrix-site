@@ -52,11 +52,10 @@
   <p>Browse snapshot dates and downloads in the
     <a href="/geocsv/testing/">testing archives</a> or
     <a href="/geocsv/releases/">production archives</a>.</p>
-  <p>All hosted GeoCSV data will be labeled <strong>testing only</strong>, including
+  <p>All hosted GeoCSV data are labeled <strong>testing only</strong>, including
     full-corpus download tests. A first production scientific release has not
     been authorized.</p>
-  <p>The initial testing batch is limited to MERMAIDs <code>P0006</code> and
-    <code>P0045</code>. Cite the MH network using DOI
+  <p>The full-corpus release candidate is available for testing. Cite the MH network using DOI
     <a href="https://doi.org/10.7914/SN/MH">10.7914/SN/MH</a>.</p>
   <p>These initial workflow tests may be removed after verification; permanent
     availability of testing downloads is not promised.</p>
@@ -70,17 +69,17 @@
     requested again without relying on whichever release is latest.</p>
   <p>Snapshot creation, scientific validation and publication are maintained by
     the separate mermaid-publisher project. Testing downloads use the isolated
-    <code>/geocsv/testing/</code> collection. Existing published payloads retain
-    their previous header, readable by mermaid-geocsv 0.28.0. The dataset-first
-    schema <code>1.0.0-rc1</code> reader requires mermaid-geocsv 0.29.0 or newer;
-    no rc1 snapshot has been published. Release paths use hyphens in place of
+    <code>/geocsv/testing/</code> collection. Testing latest serves full-corpus
+    schema <code>1.0.0-rc1</code> snapshot <code>2026-11-05T23:41:47.235000Z</code>,
+    readable by mermaid-geocsv 0.29.0 or newer. Older retained snapshots may
+    have incompatible headers. Release paths use hyphens in place of
     creation-timestamp colons; literal identities remain unchanged in metadata.</p>
-  <p>Once production access is authorized and published, Python access will use:</p>
+  <p>For testing access, use:</p>
   <pre style="overflow-x: auto;"><code>from mermaid import geocsv
 
 results = geocsv.fetch(
     "P0006",
-    base_url="https://bathymetrix.com/geocsv/",
+    base_url="https://bathymetrix.com/geocsv/testing/",
     output_dir="downloads",
 )
 tables = geocsv.read(results)</code></pre>
